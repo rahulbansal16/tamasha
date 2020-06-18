@@ -1,27 +1,39 @@
 import React from 'react';
-import { Menu, Icon, Header, Button, Segment } from 'semantic-ui-react'
+import { Header, Button } from 'semantic-ui-react'
 import { withRouter } from "react-router-dom";
-import {firestore} from "../firebase";
+import {db} from "../firebase";
 
 class Quiz extends React.Component {
 
     state = {
         question:"Hi How are you",
-        options:['first','second', 'third', 'fourth']
+        options:['first','second', 'third', 'fourth'],
+        id:'test',
+        disabled:false
+    }
+
+    // Error creating your option and lets see what can be done from the user end
+    postTheAnswer = (option) => {
+        console.log("Posting the options for the question", option);
+        this.setState({disabled: true});
     }
 
     componentDidMount = async() => {
-        // TODO: Listen to the questions from the database
-        // const question = firestore.chid(`livequestions/${this.props.event}/live`)
-        // question.on('value', snap => {
-        //         this.setState({
-        //             question: snap.question,
-        //             options: snap.options
-        //         });
-        // })
+        
+        let question = db.collection('liveQuestions').doc(this.props.event);
+        question.onSnapshot( docSnapshot =>{
+            this.setState(docSnapshot.data())
+        }, err => {
+            console.log("The error is ", err);
+        });
+
+        let answer = db.collection('liveAnswers').doc(this.props.event);
+        answer.onSnapshot( docSnapshot => {
+            this.setState(docSnapshot.data());
+        }, err => {
+            console.log("The error is", err);
+        })
     }
-    // Populate the color so that it can be set to something
-    // great and wants to do something bigger
 
     render(){
         return(
@@ -31,8 +43,8 @@ class Quiz extends React.Component {
                     this.state.options.map( (option,idx) =>
                         (
                             idx%2 === 0?
-                            <Button fluid>{option}</Button>:
-                            <Button primary fluid>{option}</Button>
+                            <Button disabled={this.state.disabled} onClick = { () => this.postTheAnswer(option)} fluid>{option}</Button>:
+                            <Button disabled={this.state.disabled} onClick = { () => this.postTheAnswer(option)} fluid>{option}</Button>
                         )
                     )
                 }
