@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 import React from 'react';
 import {Card, Button, Icon, Image} from 'semantic-ui-react';
 // import CalendarPopup from './CalendarPopup';
@@ -5,17 +6,9 @@ import { withRouter } from "react-router-dom";
 
 class Event extends React.Component {
 
-    registerForEvent = () => {
-        console.log("Call made for registering for the event");
-    }
-
     addEventToCalendar = (event) => {
         console.log("Add event to calendear");
         event.stopPropagation();
-    }
-
-    openZoomLink = (event) => {
-        console.log();
     }
 
     formatAMPM = (date) => {
@@ -38,22 +31,22 @@ class Event extends React.Component {
         });
     }
 
-    cardExampleCard = () => (
+    cardExampleCard = ({name, id, description}) => (
         <Card fluid as ='a' onClick = {this.cardClicked}>
           <Image src='https://react.semantic-ui.com/images/avatar/large/matthew.png' wrapped ui={false} />
           <Card.Content>
-            <Card.Header>Poker Live</Card.Header>
+            <Card.Header>{name}</Card.Header>
             <Card.Meta>
               <span className='date'>September 2020</span>
             </Card.Meta>
             <Card.Description>
-              Matthew is a musician living in Nashville.
+              {description}
             </Card.Description>
           </Card.Content>
           <Card.Content extra>
             <a>
               <Icon name='user' />
-              22 Friends
+              22 Registration
             </a>
           </Card.Content>
         </Card>
@@ -65,12 +58,7 @@ class Event extends React.Component {
             title: 'Hi',
             author:'Rahul Bansal',
         };
-        //  this.props.card;
-        // const startDate = new Date(startEpoch.seconds*1000);
-        // {title:'This is the title', time:'Sunday '}
-        //  this.props;
-        console.log("The startEpoch is", startEpoch);
-        return this.cardExampleCard();
+        return this.cardExampleCard(this.props.card);
     
     }
 };

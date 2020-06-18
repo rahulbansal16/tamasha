@@ -2,30 +2,32 @@ import React from 'react';
 import { Loader, Segment } from 'semantic-ui-react';
 import { getEventsFromFireStore } from '../firebase';
 import Event from './Event';
+import {db} from '../firebase';
 
 class EventGrid extends React.Component {
 
     constructor(props){
         super(props);
         this.state = {
-            isLoading : false,
+            isLoading : true,
             fetchedCards: [],
             result: []
         }
     }
 
     componentDidMount = async() => {
-        // const events = await getEventsFromFireStore();
-        const events = [{}, {}]
+        let result = []
+        const events = await db.collection('events').get();
+        events.docs.map( doc => result.push({...doc.data(), id:doc.id}));
         this.setState({
-            isLoading: false,
-            result: events
+            result: result,
+            isLoading:false
         })
     }
 
     playLoader = () => {
         return (
-            <div style = {{ height:'100%'}} className = "centerIt">
+            <div style = {{ height:'100%', marginTop:'100px'}} className = "centerIt">
                 <Loader active content='Loading' size='big' inline='centered'/>
             </div>
         );
