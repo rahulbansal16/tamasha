@@ -122,6 +122,7 @@ export const getEventsFromFireStore = async () => {
 }
 
 export const getEventsById = async (id) => {
-  let eventsRef = firestore.collection('events/'+id)
-  return await eventsRef.get();
+  let eventsRef = firestore.collection('events');
+  let event = await eventsRef.doc(id).get();
+  return event.data();
 }
