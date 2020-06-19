@@ -13,7 +13,6 @@ const firebaseConfig = {
   measurementId: "G-EWH840RHDD"
 };
 firebase.initializeApp(firebaseConfig);
-console.log(firebase)
 
 // PhoneProvider.PROVIDER_ID;
 export const auth = firebase.auth();
@@ -40,21 +39,6 @@ export const firestore = firebase.firestore();
 // export const signInWithGoogle = () => {
 //   auth.signInWithRedirect(provider);
 // };
-
-// Adding question in question_bank in firestore
-
-var database= firebase.database();
-var ref=database.ref('question_bank');
-
-var data={
-  description:"dcscd",
-  option1:"sd",
-  option2:"asd",
-  option3:"czx",
-  option4:"ccx",
-  solution:"scx"
-}
-ref.push(data)
 
 export const generateUserDocument = async (user, additionalData) => {
   if (!user) return;
