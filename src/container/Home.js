@@ -3,6 +3,7 @@ import {Header, Container, Loader} from 'semantic-ui-react'
 import EventGrid from './../component/EventGrid';
 class Home extends React.Component {
 
+
     render(){
         return(
             <Container fluid>

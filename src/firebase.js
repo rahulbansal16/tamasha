@@ -41,21 +41,6 @@ export const firestore = firebase.firestore();
 //   auth.signInWithRedirect(provider);
 // };
 
-// Adding question in question_bank in firestore
-
-var database= firebase.database();
-var ref=database.ref('question_bank');
-
-var data={
-  description:"dcscd",
-  option1:"sd",
-  option2:"asd",
-  option3:"czx",
-  option4:"ccx",
-  solution:"scx"
-}
-ref.push(data)
-
 export const generateUserDocument = async (user, additionalData) => {
   if (!user) return;
   const userRef = firestore.doc(`users/${user.uid}`);
