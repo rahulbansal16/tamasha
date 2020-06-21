@@ -19,6 +19,7 @@ export const auth = firebase.auth();
 // firebase.analytics();
 firebase.auth().useDeviceLanguage();
 export const firestore = firebase.firestore();
+export const db = firestore;
 // const provider = new firebase.auth.GoogleAuthProvider();
 // const db = firebase.database()
 
@@ -122,6 +123,4 @@ export const getEventsFromFireStore = async () => {
 }
 
 export const getEventsById = async (id) => {
-  let eventsRef = firestore.collection('events/'+id)
-  return await eventsRef.get();
 }

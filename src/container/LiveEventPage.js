@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, Card, Button, Container, Icon, Loader} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
 import Quiz from '../component/Quiz'
+import {db} from '../firebase';
 
 class LiveEventPage extends React.Component {
 
@@ -18,12 +19,13 @@ class LiveEventPage extends React.Component {
 
     componentDidMount = async () => {
         let id  = this.props.match.params.id
-        // TODO: Replace it with actual DB call
-        // let event = getEventsById(id);
-        let event = undefined
+        let videoStreamUrl = this.props.location.videoStreamUrl;
+        if (!videoStreamUrl){
+            videoStreamUrl = (await db.collection('events').doc(id).get()).data().videoStreamUrl
+        }
         this.setState({
             loading:false,
-            event:event
+            videoStreamUrl:videoStreamUrl
         })
         // TODO:Create a reference to the Event to check if it has started or not
         // and after checking the state update the eventStarted to True
@@ -32,8 +34,8 @@ class LiveEventPage extends React.Component {
     populateEvent = (id,answer) => {
         return(
                 <>
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/RVjXyvtI_lU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                <Quiz event = {id} answer={answer}/>
+                <iframe width="560" height="315" src={this.state.videoStreamUrl} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <Quiz event = {"fm"} answer={answer}/>
                 </>
             );
     }

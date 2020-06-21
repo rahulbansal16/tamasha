@@ -1,10 +1,10 @@
 import React from 'react';
 import { Image, Card, Button, Container, Icon, Loader} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
-import { getEventsById } from "../firebase";
+import {db} from '../firebase';
 import {UserContext} from '../UserProvider';
 import LiveEventPage from '../container/LiveEventPage';
-
+// TODO: Figure out a way to fetch the user info from the cards
 class EventPage extends React.Component {
 
     static contextType = UserContext;
@@ -22,12 +22,13 @@ class EventPage extends React.Component {
 
     componentDidMount = async () => {
         let id  = this.props.match.params.id
-        // TODO: Replace it with actual DB call
-        // let event = getEventsById(id);
-        let event = undefined
+        let eventData = this.props.location.card;
+        if (!eventData){
+             eventData = (await db.collection('events').doc(id).get()).data()
+        }
         this.setState({
             loading:false,
-            event:event
+            event:eventData
         })
         // TODO:Create a reference to the Event to check if it has started or not
         // and after checking the state update the eventStarted to True
@@ -43,6 +44,11 @@ class EventPage extends React.Component {
                 pathname:"/login",
                 successUrl: this.props.location
             });
+        } else {
+            this.props.history.push({
+                pathname: this.props.location.pathname + '/live',
+                videoStreamUrl: this.state.event.videoStreamUrl
+            })
         }
     }
 
@@ -68,14 +74,14 @@ class EventPage extends React.Component {
         )
     }
 
-    populateEventInfo = () => {
+    populateEventInfo = ({name, description}) => {
         return (
                 <Card fluid>
                     <Image src='https://react.semantic-ui.com/images/avatar/large/matthew.png' wrapped ui={false} />
                     <Card.Content>
-                        <Card.Header>Poker Live</Card.Header>
+                        <Card.Header>{name}</Card.Header>
                         <Card.Meta>16 June 2020 at 7 pm</Card.Meta>
-                        <Card.Description>Play your favourite poker game and get a chance to win your goodies</Card.Description>
+                        <Card.Description>{description}</Card.Description>
                     </Card.Content>
                     <Card.Content extra>
                         <Button primary onClick = {this.redirectToLogin}><Icon name="shop"></Icon>
@@ -87,11 +93,9 @@ class EventPage extends React.Component {
     }
 
     render () {
-        let id  = this.props.match.params.id
-        console.log("The id of the event is", id);
         return (
             <Container>
-                {this.state.loading? this.getLoader() : this.populateEventInfo()}
+                {this.state.loading? this.getLoader() : this.populateEventInfo(this.state.event)}
             </Container>
         );
     }

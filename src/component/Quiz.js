@@ -19,10 +19,10 @@ class Quiz extends React.Component {
     }
 
     componentDidMount = async() => {
-        
+
         let question = db.collection('liveQuestions').doc(this.props.event);
         question.onSnapshot( docSnapshot =>{
-            this.setState(docSnapshot.data())
+            this.setState({...docSnapshot.data(), disabled:false})
         }, err => {
             console.log("The error is ", err);
         });
