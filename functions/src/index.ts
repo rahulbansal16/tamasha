@@ -33,15 +33,12 @@ app.post('/event', (req, res) => {
     .catch()
 })
 
-app.get('/event/:id', (req, res) => {
-    // This will let user details about the particular event
-})
-
 // TODO: Add authentication so that only creator can access the 
 // Fetches all the registered users
 app.get('/event/:id', (req, res) => {
     // Figure out the logic to add the user in the par
     // res.send(req.params.id);    
+    console.log("Hitting the event API");
     admin.firestore().doc('eventRegistration/' + req.params.id).get()
     .then(snap => res.send(snap.data()))
     .catch(() => res.send("failed"))
@@ -61,7 +58,7 @@ app.post('/event/:id/register', (req, res) => {
     .catch(() => res.send("oops"))
 })
 
-app.get('/event/:eventID:/question/:questionID/submit', (req, res) => {
+app.get('/event/:eventID/question/:questionID/submit', (req, res) => {
 
     // I am submitting the answer to a particular question in my codebase
     // userAnswer/:userId/event/:eventId/
