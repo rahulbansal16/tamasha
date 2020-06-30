@@ -13,6 +13,7 @@ import {
 } from "react-router-dom";
 import Home from './container/Home';
 import LogoutPage from './container/LogoutPage';
+import UserPage from './container/UserPage';
 
 class App extends React.Component {
 
@@ -42,12 +43,17 @@ class App extends React.Component {
                 render = {(props) => <Home {...props} />} />      
               <Route path="/login"
                 render = {(props) => <Login {...props} authenticated = {this.state.authenticated} />}/>
+{/* TODO: Make the host endpoint only accessible to the creator of the event  */}
+              <Route path = "/event/host/:id"
+                render = {(props) => <EventPage {...props}/>} />                    
               <Route path = "/event/:id/live"
                 render = {(props) => <LiveEventPage {...props}/>} />   
               <Route path = "/event/:id"
                 render = {(props) => <EventPage {...props}/>} />
               <Route path = "/logout"
                 render = {(props) =><LogoutPage/>} />
+              <Route path = "/user"
+                render = {(props) =><UserPage/>} />
             </Switch>
           </div>
         </Router>
