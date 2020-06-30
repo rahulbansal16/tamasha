@@ -5,6 +5,7 @@ import {db} from '../firebase';
 import {UserContext} from '../UserProvider';
 import LiveEventPage from '../container/LiveEventPage';
 import AuthButton from '../component/AuthButton';
+import RedirectToLogin from '../component/RedirectToLogin';
 // TODO: Figure out a way to fetch the user info from the cards
 class EventPage extends React.Component {
 
@@ -35,23 +36,6 @@ class EventPage extends React.Component {
         // and after checking the state update the eventStarted to True
     };
 
-    // TODO: Add the flow where the user is taken to the 
-    // payment page and from there the user is taken to do somthing
-    // big and impactful
-    redirectToLogin = () => {
-        console.log("The event join button got clicked", this.context);
-        if (!this.context){
-            this.props.history.push({
-                pathname:"/login",
-                successUrl: this.props.location
-            });
-        } else {
-            this.props.history.push({
-                pathname: this.props.location.pathname + '/live',
-                videoStreamUrl: this.state.event.videoStreamUrl
-            })
-        }
-    }
 
     isEventStarted = () => {
         return true;
@@ -66,7 +50,9 @@ class EventPage extends React.Component {
         // if required it automatically redirects the user to the login page
         // and once the login is done it displays the page automatically
         if(eventStarted){
-            this.redirectToLogin();
+            return (
+                <RedirectToLogin/>
+            )
         }
         return (
             <div>
@@ -74,6 +60,10 @@ class EventPage extends React.Component {
             </div>
         )
     }
+
+    // TODO: Add the flow where the user is taken to the 
+    // payment page and from there the user is taken to do somthing
+    // big and impactful
 
     onClick = () => {
         this.props.history.push({
