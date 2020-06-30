@@ -4,6 +4,7 @@ import {withRouter} from "react-router-dom";
 import {db} from '../firebase';
 import {UserContext} from '../UserProvider';
 import LiveEventPage from '../container/LiveEventPage';
+import AuthButton from '../component/AuthButton';
 // TODO: Figure out a way to fetch the user info from the cards
 class EventPage extends React.Component {
 
@@ -74,6 +75,13 @@ class EventPage extends React.Component {
         )
     }
 
+    onClick = () => {
+        this.props.history.push({
+            pathname: this.props.location.pathname + '/live',
+            videoStreamUrl: this.state.event.videoStreamUrl
+        })   
+    }
+
     populateEventInfo = ({name, description}) => {
         return (
                 <Card fluid>
@@ -84,9 +92,7 @@ class EventPage extends React.Component {
                         <Card.Description>{description}</Card.Description>
                     </Card.Content>
                     <Card.Content extra>
-                        <Button primary onClick = {this.redirectToLogin}><Icon name="shop"></Icon>
-                            {this.context? "Play" : "Join"}
-                        </Button>
+                        <AuthButton onClick={this.onClick} unAuthText={"Join"} authText={"Play"}/>
                     </Card.Content>
                 </Card>
             );
