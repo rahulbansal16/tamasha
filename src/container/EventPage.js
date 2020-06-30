@@ -1,21 +1,18 @@
 import React from 'react';
-import { Image, Card, Button, Container, Icon, Loader} from 'semantic-ui-react';
+import { Image, Card, Container, Loader} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
 import {db} from '../firebase';
-import {UserContext} from '../UserProvider';
 import LiveEventPage from '../container/LiveEventPage';
 import AuthButton from '../component/AuthButton';
 import RedirectToLogin from '../component/RedirectToLogin';
 // TODO: Figure out a way to fetch the user info from the cards
 class EventPage extends React.Component {
 
-    static contextType = UserContext;
     state = {
         loading:true,
         event:undefined,
         eventStarted: true
     };
-
     getLoader = () => {
         return (
             <Loader active inline="centered" content="Spinning up the Magic"></Loader>
