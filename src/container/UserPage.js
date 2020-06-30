@@ -1,7 +1,8 @@
 import React from 'react';
-import { Image, Card, Button, Container, Icon, Loader} from 'semantic-ui-react';
+import { Image, Card, Button, Container, Icon, Loader, Header} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
-import { getEventsById } from "../firebase";
+import {db} from '../firebase';
+import EventGrid from '../component/EventGrid';
 // This will also populate the card like some user reference etc
 // It should not be a big thing altogether
 
@@ -29,21 +30,32 @@ class UserPage extends React.Component {
         })
     };
 
-    upcomingEvents = () => {
+    renderUserMenu = () => {
+        return(
+            <>
+            </>
+        );
+    }
+
+    onCardClick = async (id) => {
+        console.log("Card got clicked")
+        this.props.history.push({
+            pathname:"/event/host/" + id,
+            //  this.props.card.id,
+            card: this.props.card
+        });
+    }
+    // All these events will be fetched and these events belongs to the user
+    fetchUserEvents = async () => {
+        return await db.collection('events').get();
+    }
+
+    renderUserProfile = () => {
         return (
-                <Card fluid>
-                    <Image src='https://react.semantic-ui.com/images/avatar/large/matthew.png' wrapped ui={false} />
-                    <Card.Content>
-                        <Card.Header>Poker Live</Card.Header>
-                        <Card.Meta>16 June 2020 at 7 pm</Card.Meta>
-                        <Card.Description>Play your favourite poker game and get a chance to win your goodies</Card.Description>
-                    </Card.Content>
-                    <Card.Content extra>
-                        <Button primary><Icon name="shop"></Icon>
-                            Join
-                        </Button>
-                    </Card.Content>
-                </Card>
+            <>
+                <Header content="Upcoming Events"></Header>
+                <EventGrid fetchEventResult = {this.fetchUserEvents} onCardClick = {this.onCardClick}/>
+            </>
             );
     }
 
@@ -52,7 +64,7 @@ class UserPage extends React.Component {
         console.log("The id of the event is", id);
         return(
             <Container>
-                {this.state.loading? this.getLoader() : this.populateTheCard()}
+                {this.state.loading? this.getLoader() : this.renderUserProfile()}
             </Container>
         );
     }
