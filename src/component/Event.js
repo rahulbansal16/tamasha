@@ -23,16 +23,17 @@ class Event extends React.Component {
         return strTime;
       }
 
-    cardClicked = () => {
-        console.log("Card got clicked")
-        this.props.history.push({
-            pathname:"/event/" + this.props.card.id,
-            card: this.props.card
-        });
-    }
+    // TODO: Removed this, it is just for reference for the 
+    // cardClicked = () => {
+    //     console.log("Card got clicked")
+    //     this.props.history.push({
+    //         pathname:"/event/" + this.props.card.id,
+    //         card: this.props.card
+    //     });
+    // }
 
     cardExampleCard = ({name, id, description}) => (
-        <Card fluid as ='a' onClick = {this.cardClicked}>
+        <Card fluid as ='a' onClick = { () => this.props.onCardClick(this.props.card.id)}>
           <Image src='https://react.semantic-ui.com/images/avatar/large/matthew.png' wrapped ui={false} />
           <Card.Content>
             <Card.Header>{name}</Card.Header>

@@ -1,8 +1,6 @@
 import React from 'react';
-import { Loader, Segment } from 'semantic-ui-react';
-import { getEventsFromFireStore } from '../firebase';
+import { Loader } from 'semantic-ui-react';
 import Event from './Event';
-import {db} from '../firebase';
 
 class EventGrid extends React.Component {
 
@@ -17,8 +15,12 @@ class EventGrid extends React.Component {
 
     componentDidMount = async() => {
         let result = []
-        const events = await db.collection('events').get();
-        events.docs.map( doc => result.push({...doc.data(), id:doc.id}));
+        const eventResult = await this.props.fetchEventResult();
+        if (!eventResult){
+            console.log("Unable to fetch the eventResult, some error occured");
+            return 
+        }
+        eventResult.docs.map( doc => result.push({...doc.data(), id:doc.id}));
         this.setState({
             result: result,
             isLoading:false
@@ -36,7 +38,7 @@ class EventGrid extends React.Component {
     render(){
         return (
             this.state.isLoading ? this.playLoader() :
-            this.state.result.map( card => (<Event card={card}/>))
+            this.state.result.map( card => (<Event card={card} onCardClick={this.props.onCardClick}/>))
         );
     }
 
