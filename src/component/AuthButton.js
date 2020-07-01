@@ -22,7 +22,7 @@ class AuthButton extends React.Component {
         return (
             <Button primary onClick = {this.onClick}>
                 <Icon name="shop"></Icon>
-                {this.context? this.props.authText : this.props.unAuthText}
+                {this.context? this.props.authText || this.props.unAuthText: this.props.unAuthText || this.props.authText}
             </Button>
         )
     }
