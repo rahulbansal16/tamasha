@@ -10,7 +10,7 @@ class AppLoader extends React.Component {
         return(<> 
         {
         this.props.loading?
-            <Loader active inline="centered" content=" Running the Loader">
+            <Loader active inline="centered" content= {this.props.text || "Running the Loader"}>
             </Loader>
             :child
         } 
