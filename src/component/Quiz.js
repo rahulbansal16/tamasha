@@ -4,21 +4,22 @@ import { withRouter } from "react-router-dom";
 import {db} from "../firebase";
 
 class Quiz extends React.Component {
-
+    timer = 20*1000;// miliseconds
+    timerInterval = 1000/40; // miliseconds
+    timerMethod = null; // variable for setting the setTimer
     state = {
         question:"Hi How are you",
         options:['first','second', 'third', 'fourth'],
         id:'test',
         disabled:false,
-        timeLeft: 10,
+        timeLeft: this.timer,
         success: true,
         warning: false,
         error:false,
         percent: 100,
+        timerDisabled: false,
         isLoading: true
     }
-    timer = null;
-
     // Error creating your option and lets see what can be done from the user end
     postTheAnswer = (option) => {
         console.log("Posting the options for the question", option);
@@ -27,12 +28,13 @@ class Quiz extends React.Component {
 
     decreaseTime = () => {
         this.setState( (old) =>({
-            timeLeft: old.timeLeft - 1,
-            percent: ((old.timeLeft-1)/10.00)*100,
-            success: old.timeLeft - 1 >= 8 ? true: false,
-            error: old.timeLeft - 1 < 4 ? true: false,
-            warning: old.timeLeft - 1 >= 4 && old.timeLeft -1 < 8 ? true: false,
-            disabled: old.timeLeft - 1 === 0? true: false
+            timeLeft: old.timeLeft - this.timerInterval,
+            percent: ((old.timeLeft- this.timerInterval)/this.timer )*100,
+            success: old.timeLeft - this.timerInterval >= 8 ? true: false,
+            error: old.timeLeft - this.timerInterval < 4*1000 ? true: false,
+            warning: old.timeLeft - this.timerInterval >= 4*1000 && old.timeLeft - this.timerInterval < 8 ? true: false,
+            disabled: old.timeLeft - this.timerInterval === 0? true: false,
+            timerDisabled: ((old.timeLeft- this.timerInterval)/this.timer ) === 0
         }));
     }
 
@@ -52,24 +54,24 @@ class Quiz extends React.Component {
             console.log("The error is", err);
         })
 
-        this.timer = setInterval(this.decreaseTime , 1000);
+        this.timerMethod = setInterval(this.decreaseTime , this.timerInterval);
         if (this.state.percent === 0 ) {
-            clearInterval(this.timer);
-            this.timer = null;
+            clearInterval(this.timerMethod);
+            this.timerMethod = null;
         }
     }
 
     componentWillUnmount(){
-        if(this.timer === null){
-           clearInterval(this.timer) ;
-           this.timer = null;
+        if(this.timerMethod !== null){
+           clearInterval(this.timerMethod) ;
+           this.timerMethod = null;
         }
     }
 
     renderQuizComponent = () => {
         return (
             <>  
-                <Progress percent = {this.state.percent} success={this.state.success} error = {this.state.error} warning={this.state.warning} />
+                <Progress percent = {this.state.percent} success={this.state.success} error = {this.state.error} warning={this.state.warning} disabled={this.state.timerDisabled}/>
                 <Header as="h4" content = {this.state.question} textAlign="center" ></Header>
                 {
                     this.state.options.map( (option,idx) =>
