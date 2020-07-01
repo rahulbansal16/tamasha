@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Card, Container, Loader} from 'semantic-ui-react';
+import { Image, Card, Container} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
 import AppLoader from '../component/AppLoader'
 import {db} from '../firebase';
@@ -16,7 +16,7 @@ class EventPage extends React.Component {
     };
 
     componentDidMount = async () => {
-        let id  = this.props.match.params.id
+        let id = this.props.match.params.id
         let eventData = this.props.location.card;
         if (!eventData){
              eventData = (await db.collection('events').doc(id).get()).data()
@@ -65,7 +65,9 @@ class EventPage extends React.Component {
         })   
     }
 
-    populateEventInfo = ({name, description}) => {
+    populateEventInfo = (event) => {
+        if(!event) return;
+        const {name, description} = event;
         return (
                 <Card fluid>
                     <Image src='https://react.semantic-ui.com/images/avatar/large/matthew.png' wrapped ui={false} />
