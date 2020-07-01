@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, Card, Container, Loader} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
+import AppLoader from '../component/AppLoader'
 import {db} from '../firebase';
 import LiveEventPage from '../container/LiveEventPage';
 import AuthButton from '../component/AuthButton';
@@ -13,11 +14,6 @@ class EventPage extends React.Component {
         event:undefined,
         eventStarted: true
     };
-    getLoader = () => {
-        return (
-            <Loader active inline="centered" content="Spinning up the Magic"></Loader>
-        );
-    }
 
     componentDidMount = async () => {
         let id  = this.props.match.params.id
@@ -88,7 +84,9 @@ class EventPage extends React.Component {
     render () {
         return (
             <Container>
-                {this.state.loading? this.getLoader() : this.populateEventInfo(this.state.event)}
+                <AppLoader loading={this.state.loading}>
+                    {this.populateEventInfo(this.state.event)}
+                </AppLoader>
             </Container>
         );
     }
