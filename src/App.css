@@ -1,11 +1,35 @@
 .App {
-  max-width: 360px;
+  /* max-width: 360px; */
 }
 
 /* .eventContainer{
   display:inline-block !important;
   width: 300px;
 } */
+
+.fadeInUp {
+  animation-name: fadeInUp;
+  animation-duration: 0.45s;
+  animation-fill-mode: both;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeInUp {
+  animation-name: fadeInUp;
+  animation-duration: 0.45s;
+  animation-fill-mode: both;
+}
 
 img {
   max-width: 100%;
