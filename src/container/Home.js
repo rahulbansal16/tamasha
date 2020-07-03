@@ -1,7 +1,8 @@
 import React from 'react';
-import {Header, Container, Loader} from 'semantic-ui-react'
+import {Container} from 'semantic-ui-react'
 import EventGrid from './../component/EventGrid';
 import {db} from '../firebase';
+import AppHeader from '../component/AppHeader';
 class Home extends React.Component {
 
     fetchPublicEvents = async () => {
@@ -20,7 +21,7 @@ class Home extends React.Component {
     render(){
         return(
             <Container fluid>
-                <Header textAlign='center' as='h1' content="Tamasha Live"/>
+                <AppHeader/>
                 <EventGrid fetchEventResult={this.fetchPublicEvents} onCardClick = {this.onCardClick}/>
             </Container>
         );
