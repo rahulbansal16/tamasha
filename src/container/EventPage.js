@@ -3,73 +3,90 @@ import { Image, Card, Container} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
 import AppLoader from '../component/AppLoader'
 import {db} from '../firebase';
-import LiveEventPage from '../container/LiveEventPage';
 import AuthButton from '../component/AuthButton';
-import RedirectToLogin from '../component/RedirectToLogin';
-// TODO: Figure out a way to fetch the user info from the cards
+import {functions} from '../firebase';
+import {PaymentStatus, EventStatus} from '../Const'
 class EventPage extends React.Component {
 
     state = {
         loading:true,
         event:undefined,
-        eventStarted: true
+        eventStatus: EventStatus.UPCOMING,
+        buttonText:'Play',
+        paymentStatus: PaymentStatus.PENDING
     };
 
     componentDidMount = async () => {
-        let id = this.props.match.params.id
-        let eventData = this.props.location.card;
-        if (!eventData){
-             eventData = (await db.collection('events').doc(id).get()).data()
+        const event = await this.fetchEvent()
+        const status = await this.fetchPaymentStatus();
+        let textOnButton = "Join at Rs " + (event.entryFee || 50).toString();
+        if (status) {
+            textOnButton = "Play";
         }
+        // TODO: Add the EventStatus field in the database
         this.setState({
             loading:false,
-            event:eventData
+            event:event,
+            eventStatus: (event || EventStatus.UPCOMING).status,
+            paymentStatus: status,
+            buttonText: textOnButton
         })
-        // TODO:Create a reference to the Event to check if it has started or not
-        // and after checking the state update the eventStarted to True
     };
 
-
-    isEventStarted = () => {
-        return true;
+    fetchEvent = async () => {
+        let id = this.props.match.params.id;
+        let eventData = this.props.location.card;
+        if (!eventData){
+            try {
+                eventData = (await db.collection('events').doc(id).get()).data()
+            }
+            catch(err){
+                console.error("Error fetching the event", err)
+            }
+        }
+        return eventData
     }
 
-    // TODO: Removed this function since it is moved to the
-    // new router page
-    populateEvent = () => {
-        const eventStarted = this.state.eventStarted;
-        // TODO: Move this method to the LiveEventPage,
-        // create a component that checks if the authentication is required
-        // if required it automatically redirects the user to the login page
-        // and once the login is done it displays the page automatically
-        if(eventStarted){
-            return (
-                <RedirectToLogin/>
-            )
-        }
-        return (
-            <div>
-                {eventStarted?<LiveEventPage/>:this.populateEventInfo()}
-            </div>
-        )
+
+    fetchPaymentStatus = async () => {
+      try {
+        //   TODO: Create a function in the firebase
+        const paymentStatus = functions.httpsCallable('fetchUserPayment');
+        const res = await paymentStatus({eventId: this.props.match.params.id});
+        return res.paymentStatus
+      }
+      catch (err){
+        console.error("Error fetching the payment status", err);
+        return undefined;
+      }
+    }
+
+    isEventStarted = () => {
+        return (this.state.event || false).status
     }
 
     // TODO: Add the flow where the user is taken to the 
     // payment page and from there the user is taken to do somthing
-    // big and impactful
 
     onClick = () => {
-        this.props.history.push({
-            pathname: this.props.location.pathname + '/live',
-            videoStreamUrl: this.state.event.videoStreamUrl
-        })   
+        if (!this.state.paymentStatus === PaymentStatus.PENDING){
+            console.log("Redirecting to the payment page");
+        }
+        if (this.state.paymentStatus === PaymentStatus.RECEIVED &&
+            this.state.eventStatus === EventStatus.LIVE){
+           console.log("Redirecting to the live Event page")
+            this.props.history.push({
+                pathname: this.props.location.pathname + '/live',
+                videoStreamUrl: this.state.event.videoStreamUrl
+            })  
+       }
     }
 
     populateEventInfo = (event) => {
         if(!event) return;
         const {name, description} = event;
-        return (
-                <Card fluid>
+        return (<>
+                <Card className="fadeInUp" fluid>
                     <Image src='https://react.semantic-ui.com/images/avatar/large/matthew.png' wrapped ui={false} />
                     <Card.Content>
                         <Card.Header>{name}</Card.Header>
@@ -77,9 +94,10 @@ class EventPage extends React.Component {
                         <Card.Description>{description}</Card.Description>
                     </Card.Content>
                     <Card.Content extra>
-                        <AuthButton onClick={this.onClick} unAuthText={"Join"} authText={"Play"}/>
+                        <AuthButton onClick={this.onClick} unAuthText={"Register"} authText={this.state.buttonText}/>
                     </Card.Content>
                 </Card>
+                </>
             );
     }
 
