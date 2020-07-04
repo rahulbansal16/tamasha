@@ -21,6 +21,52 @@ main.use(bodyParser.urlencoded({ extended: false }));
 
 export const webApi = functions.https.onRequest(main);
 
+exports.addUserEntry = functions.auth.user().onCreate( (userData) => {
+    admin.firestore().collection('users').add(userData)
+    .then( () => console.log("Created a new user in the table", userData))
+    .catch( () => console.log("Unable to add user in the users table", userData))
+})
+
+exports.registerUserForEvent = functions.https.onCall((data, context) => {
+
+    if (!context || !context.auth){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+
+    const uid = context.auth.uid || null;
+    if (!uid){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+
+    admin.firestore().collection('events').doc(data.eventId).get()
+    .then(event => {
+        if (!event){
+            throw new functions.https.HttpsError('unknown', "Event with the name does not exist")
+        }
+        admin.firestore().collection('eventRegistration').doc(data.eventId).set({
+            users: admin.firestore.FieldValue.arrayUnion(uid),
+            creator: (event.data() || {}).creator
+        })
+        .then( snap => {
+            console.log("Added the user successfully");
+            return {
+                success:true,
+                message:"successfully registered for the event"
+            }
+        })
+        .catch( error => {
+            console.log("Failed to register a user")
+            throw new functions.https.HttpsError('unknown', error.message, error)
+        });
+    }).catch( err => {
+        throw new functions.https.HttpsError('unknown', "Event with the name does not exist")
+    })
+   
+    // const name = context.auth.token.name || null;
+    // const picture = context.auth.token.picture || null;
+    // const email = context.auth.token.email || null;
+});
+
 app.get('/contacts', (req, res) => {
     firebaseHelper.firestore
         .backup(db, contactsCollection)
