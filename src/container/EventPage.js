@@ -77,7 +77,8 @@ class EventPage extends React.Component {
            console.log("Redirecting to the live Event page")
             this.props.history.push({
                 pathname: this.props.location.pathname + '/live',
-                videoStreamUrl: this.state.event.videoStreamUrl
+                videoStreamUrl: this.state.event.videoStreamUrl,
+                event: this.state.event
             })  
        }
     }
