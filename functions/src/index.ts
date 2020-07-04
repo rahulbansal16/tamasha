@@ -38,6 +38,41 @@ exports.addUserEntry = functions.auth.user().onCreate( (userData) => {
     .catch( () => console.log("Unable to add user in the users table", userData))
 })
 
+exports.updateEventStatus = functions.https.onCall((data, context) => {
+    if (!context || !context.auth){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+    const uid = context.auth.uid || null;
+    if (!uid){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+    admin.firestore().collection('events')
+    .doc(data.eventId)
+    .get()
+    .then((event:any) => {
+        if (event.data().creator === uid){
+            console.log();
+            admin.firestore().collection('events').doc(data.eventID).update({
+                eventStatus: data.eventStatus
+             })
+             .then( (result) => result)
+             .catch( err => {
+                 console.error("Unable to update the event status", err);
+                 throw new functions.https.HttpsError('unknown', "Unknown error while updating the status")
+                })
+
+        } else {
+            console.error("User ${0} not allowed to edit the event ${1} status", uid, data.eventId)
+            throw new functions.https.HttpsError('permission-denied', "User not allowed to edit the event status")
+        }
+    })
+    .catch( err => {
+        console.error("Unable to fetch the event status", err);
+        throw new functions.https.HttpsError('unknown', "Unknown error while fetching the status")
+    })
+    
+})
+
 exports.fetchUserPayment = functions.https.onCall((data, context) => {
     if (!context || !context.auth){
         throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
