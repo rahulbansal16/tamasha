@@ -1,7 +1,8 @@
 import React from 'react';
-import { Header, Button, Progress, Loader } from 'semantic-ui-react'
+import { Header, Button, Progress } from 'semantic-ui-react'
 import { withRouter } from "react-router-dom";
 import {db} from "../firebase";
+import AppLoader from './AppLoader';
 
 class Quiz extends React.Component {
     timer = 20*1000;// miliseconds
@@ -42,7 +43,11 @@ class Quiz extends React.Component {
 
         let question = db.collection('liveQuestions').doc(this.props.event);
         question.onSnapshot( docSnapshot =>{
-            this.setState({...docSnapshot.data(), disabled:false, isLoading:false})
+            this.setState({
+                ...docSnapshot.data(),
+                 disabled:false,
+                  isLoading:false
+            })
         }, err => {
             console.log("The error is ", err);
         });
@@ -69,6 +74,9 @@ class Quiz extends React.Component {
     }
 
     renderQuizComponent = () => {
+        if(this.state.isLoading){
+            return;
+        }
         return (
             <>  
                 <Progress percent = {this.state.percent} success={this.state.success} error = {this.state.error} warning={this.state.warning} disabled={this.state.timerDisabled}/>
@@ -86,18 +94,12 @@ class Quiz extends React.Component {
         )
     }
 
-    showLoader = () => {
-        return (
-            <>
-                <Loader/>
-            </>
-        );
-    }
-
     render(){
         return(
-            <>  
-            {this.state.isLoading?this.showLoader():this.renderQuizComponent()}
+            <>
+            <AppLoader loading = {this.state.isLoading} text = {"Loading Questions"}>
+                {this.renderQuizComponent()}
+            </AppLoader>
             </>
         );
     }
