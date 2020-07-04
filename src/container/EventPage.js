@@ -50,7 +50,6 @@ class EventPage extends React.Component {
 
     fetchPaymentStatus = async () => {
       try {
-        //   TODO: Create a function in the firebase
         const paymentStatus = functions.httpsCallable('fetchUserPayment');
         const res = await paymentStatus({eventId: this.props.match.params.id});
         return res.paymentStatus
