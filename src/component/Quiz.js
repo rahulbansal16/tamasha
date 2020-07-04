@@ -79,8 +79,17 @@ class Quiz extends React.Component {
         }
         return (
             <>  
-                <Progress percent = {this.state.percent} success={this.state.success} error = {this.state.error} warning={this.state.warning} disabled={this.state.timerDisabled}/>
-                <Header as="h4" content = {this.state.question} textAlign="center" ></Header>
+                <Progress percent = {this.state.percent} 
+                success={this.state.success} 
+                error = {this.state.error} 
+                warning={this.state.warning} 
+                disabled={this.state.timerDisabled}
+                style = {{marginTop:'4px', marginBottom:'0px'}}
+                />
+                <Header as="h4" 
+                content = {this.state.question} 
+                style = {{marginBottom:'4px', marginTop:'4px'}}
+                ></Header>
                 {
                     this.state.options.map( (option,idx) =>
                         (
