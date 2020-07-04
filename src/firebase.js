@@ -2,6 +2,7 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
+import "firebase/functions";
 const firebaseConfig = {
   apiKey: "AIzaSyDgmE5U_WIDVoonJlOC2QpiAMxKBjXil4M",
   authDomain: "tamasha-c84b1.firebaseapp.com",
@@ -16,6 +17,7 @@ firebase.initializeApp(firebaseConfig);
 
 // PhoneProvider.PROVIDER_ID;
 export const auth = firebase.auth();
+export const functions = firebase.functions();
 // firebase.analytics();
 firebase.auth().useDeviceLanguage();
 export const firestore = firebase.firestore();
