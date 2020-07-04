@@ -1,16 +1,21 @@
 import React from 'react';
-import { Image, Card, Button, Container, Icon, Loader} from 'semantic-ui-react';
+import {Container} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
 import Quiz from '../component/Quiz'
 import {db} from '../firebase';
+import {EventStatus} from '../Const';
+import AppLoader from '../component/AppLoader';
 
+// Add a column telling the user that the event has not started yet and
 class LiveEventPage extends React.Component {
 
     // TODO: Add the logic of highlighting the 
     // answer when the answer is revealed
     state = {
-        eventStarted:true,
-        answer:undefined
+        eventStatus: EventStatus.UPCOMING,
+        answer:undefined,
+        event: undefined,
+        loading: true
     }
 
     submitTheAnswer = async () => {
@@ -20,22 +25,24 @@ class LiveEventPage extends React.Component {
     componentDidMount = async () => {
         let id  = this.props.match.params.id
         let videoStreamUrl = this.props.location.videoStreamUrl;
+        let event = this.props.location.event;
         if (!videoStreamUrl){
-            videoStreamUrl = (await db.collection('events').doc(id).get()).data().videoStreamUrl
+            event = (await db.collection('events').doc(id).get()).data()
         }
         this.setState({
-            loading:false,
-            videoStreamUrl:videoStreamUrl
+            loading: false,
+            videoStreamUrl: event.videoStreamUrl,
+            event: event,
+            // TODO: Add a field called eventStatus in the event json
+            eventStatus: event.eventStatus
         })
-        // TODO:Create a reference to the Event to check if it has started or not
-        // and after checking the state update the eventStarted to True
     };
 
     populateEvent = (id,answer) => {
         return(
                 <>
-                <iframe width="560" height="315" src={this.state.videoStreamUrl} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                <Quiz event = {"fm"} answer={answer}/>
+                <iframe title = {this.state.event.name} width="560" height="315" src={this.state.videoStreamUrl} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <Quiz event = {id || 'fm'} answer={answer}/>
                 </>
             );
     }
@@ -43,7 +50,9 @@ class LiveEventPage extends React.Component {
     eventNotLive = () => {
         return (
             <>
-            The event is not yet started
+                The Event is not live yet. 
+                Please wait for some time.
+                Once the show gets over.
             </>
         );
     }
@@ -53,11 +62,13 @@ class LiveEventPage extends React.Component {
         console.log("The id of the event is", id);
         return(
             <Container>
-                {
-                    this.state.eventStarted?
-                    this.populateEvent(id):
-                    this.eventNotLive()
-                }
+                <AppLoader loading = {this.state.loading}>
+                    {
+                        this.state.eventStatus === EventStatus.LIVE?
+                        this.populateEvent(id):
+                        this.eventNotLive()
+                    }
+                </AppLoader>
             </Container>
         );
     }
