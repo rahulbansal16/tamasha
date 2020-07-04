@@ -23,7 +23,6 @@ class EventPage extends React.Component {
         if (status) {
             textOnButton = "Play";
         }
-        // TODO: Add the EventStatus field in the database
         this.setState({
             loading:false,
             event:event,
