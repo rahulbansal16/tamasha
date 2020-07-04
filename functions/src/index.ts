@@ -19,12 +19,63 @@ main.use(bodyParser.urlencoded({ extended: false }));
 // webApi is your functions name, and you will pass main as 
 // a parameter
 
+export const EventStatus = {
+    LIVE: 'live',
+    UPCOMING: 'upcoming',
+    CANCELLED: 'cancelled'
+};
+
+export const PaymentStatus = {
+    PENDING: 'pending',
+    RECEIVED: 'received'
+}
+
 export const webApi = functions.https.onRequest(main);
 
 exports.addUserEntry = functions.auth.user().onCreate( (userData) => {
     admin.firestore().collection('users').add(userData)
     .then( () => console.log("Created a new user in the table", userData))
     .catch( () => console.log("Unable to add user in the users table", userData))
+})
+
+exports.fetchUserPayment = functions.https.onCall((data, context) => {
+    if (!context || !context.auth){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+    const uid = context.auth.uid || null;
+    if (!uid){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+    admin.firestore().collection('eventRegistration')
+    .doc(data.eventId)
+    .get()
+    .then( snap => {
+        if (!snap){
+            throw new functions.https.HttpsError('unknown', "Event with the name does not exist")
+        }
+        const paymentStatuses: any = (snap.data()|| {paymentStatus:[] }).paymentStatus;
+        const paymentIndex = paymentStatuses.indexOf( (paymentStatus: any)=> {
+            if (paymentStatus.uid === uid){
+                return 
+            }
+        });
+
+        if (paymentIndex !== -1){
+            return {
+                ...paymentStatuses[paymentIndex],
+                paymentStatus: PaymentStatus.RECEIVED
+            }
+        } else {
+            return {
+                paymentStatus: PaymentStatus.PENDING,
+                uid: uid
+            }
+        }
+    })
+    .catch(err => {
+        console.error("Unable to fetch the payment status", err);
+        throw new functions.https.HttpsError('unknown', "Error fetching the payment status")
+    }) 
 })
 
 exports.registerUserForEvent = functions.https.onCall((data, context) => {
@@ -45,6 +96,10 @@ exports.registerUserForEvent = functions.https.onCall((data, context) => {
         }
         admin.firestore().collection('eventRegistration').doc(data.eventId).set({
             users: admin.firestore.FieldValue.arrayUnion(uid),
+            payment: admin.firestore.FieldValue.arrayUnion({uid: uid,
+                 amount: data.amount,
+                 referenceId: data.referenceId
+                }),
             creator: (event.data() || {}).creator
         })
         .then( snap => {
