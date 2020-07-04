@@ -39,9 +39,12 @@ class LiveEventPage extends React.Component {
     };
 
     populateEvent = (id,answer) => {
+        console.log("Populating the event", this.state.event);
+        if (this.state.loading)
+            return
         return(
                 <>
-                <iframe title = {this.state.event.name} width="560" height="315" src={this.state.videoStreamUrl} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe title = {this.state.event.name} width="560" height="315" src={this.state.videoStreamUrl} frameBorder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
                 <Quiz event = {id || 'fm'} answer={answer}/>
                 </>
             );
@@ -62,11 +65,12 @@ class LiveEventPage extends React.Component {
         console.log("The id of the event is", id);
         return(
             <Container>
-                <AppLoader loading = {this.state.loading}>
+                <AppLoader loading = {this.state.loading} text="Connecting to Live Event">
                     {
                         this.state.eventStatus === EventStatus.LIVE?
                         this.populateEvent(id):
-                        this.eventNotLive()
+                        this.populateEvent(id)
+                        // this.eventNotLive()
                     }
                 </AppLoader>
             </Container>
