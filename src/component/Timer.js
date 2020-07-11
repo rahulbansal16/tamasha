@@ -3,12 +3,13 @@ import {Progress} from 'semantic-ui-react';
 
 class Timer extends React.Component {
 
-    defaultTime = 20*1000; // miliseconds
-    callbackInterval = 1000/40; // miliseconds
-    setIntervalMethod = null; // variable for setting the setTimer
+    defaultTime = 20*1000; // seconds
+    callbackInterval = 40; // miliseconds
+    setTimeoutMethod = null; // variable for setting the setTimer
     
     state = {
         timeLeft: this.props.totalTime || this.defaultTime,
+        lastNow: Date.now(),
         percent: this.props.percent,
         success: false,
         error: false,
@@ -18,29 +19,37 @@ class Timer extends React.Component {
 
     decreaseTime = () => {
         let totalTime = this.props.totalTime || this.defaultTime;
-        this.setState((old) => ({
-            timeLeft: old.timeLeft - this.callbackInterval,
-            percent: ((old.timeLeft- this.callbackInterval)/totalTime )*100,
-            success: ((old.timeLeft- this.callbackInterval)/totalTime )*100 >= 80 ? true: false,
-            error: ((old.timeLeft- this.callbackInterval)/totalTime )*100 <= 20 ? true: false,
-            warning: ((old.timeLeft - this.callbackInterval)/totalTime )*100 > 20 && ((old.timeLeft- this.callbackInterval)/totalTime )*100 < 80 ? true: false,
-            disabled: ((old.timeLeft - this.callbackInterval)/totalTime )*100 <= 0? true: false,
-            timerDisabled: ((old.timeLeft- this.callbackInterval)/totalTime )*100 <= 0
+        if (this.state.timeLeft <= 0 ) {
+            clearTimeout(this.setTimeoutMethod);
+            this.setTimeoutMethod = null;
+            this.props.onComplete();
+            return
+        }
+        let now = Date.now();
+        let timeElapsedInMilliseconds = now - this.state.lastNow;
+        console.log("The timeElapsed is", timeElapsedInMilliseconds/1000);
+        this.setState((old) => (
+            {
+            timeLeft: old.timeLeft - timeElapsedInMilliseconds,
+            lastNow: now,
+            percent: ((old.timeLeft- timeElapsedInMilliseconds)/totalTime )*100,
+            success: ((old.timeLeft- timeElapsedInMilliseconds)/totalTime )*100 >= 80 ? true: false,
+            error: ((old.timeLeft- timeElapsedInMilliseconds)/totalTime )*100 <= 20 ? true: false,
+            warning: ((old.timeLeft - timeElapsedInMilliseconds)/totalTime )*100 > 20 && ((old.timeLeft- timeElapsedInMilliseconds)/totalTime )*100 < 80 ? true: false,
+            disabled: ((old.timeLeft - timeElapsedInMilliseconds)/totalTime )*100 <= 0? true: false,
+            timerDisabled: ((old.timeLeft- timeElapsedInMilliseconds)/totalTime )*100 <= 0
         }));
+        this.setTimeoutMethod = setTimeout(this.decreaseTime , this.callbackInterval);
     }
 
     componentDidMount() {
-        this.setIntervalMethod = setInterval(this.decreaseTime , this.callbackInterval);
-        if (this.state.percent <= 0 ) {
-            clearInterval(this.setIntervalMethod);
-            this.setIntervalMethod = null;
-        }
+        this.setTimeoutMethod = setTimeout(this.decreaseTime , this.callbackInterval);
     }
 
     componentWillUnmount(){
-        if(this.setIntervalMethod !== null){
-           clearInterval(this.setIntervalMethod) ;
-           this.setIntervalMethod = null;
+        if(this.setTimeoutMethod !== null){
+           clearTimeout(this.setTimeoutMethod) ;
+           this.setTimeoutMethod = null;
         }
     }
 
