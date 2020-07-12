@@ -3,6 +3,12 @@ import {Progress} from 'semantic-ui-react';
 
 class Timer extends React.Component {
 
+    ProgressBarStatus = {
+        SUCCESS:'success',
+        WARNING: 'warning',
+        ERROR: 'error'
+    }
+
     defaultTime = 20*1000; // seconds
     callbackInterval = 40; // miliseconds
     setTimeoutMethod = null; // variable for setting the setTimer
@@ -11,10 +17,26 @@ class Timer extends React.Component {
         timeLeft: this.props.totalTime || this.defaultTime,
         lastNow: Date.now(),
         percent: this.props.percent,
-        success: false,
-        error: false,
-        warning: false,
+        status: this.ProgressBarStatus.SUCCESS,
         disabled: this.props.disabled || false,
+    }
+
+    getStatus = (percent) => {
+        percent = percent || 100;
+        if ( percent >= 80 ) {
+            return this.ProgressBarStatus.SUCCESS
+        }
+        if ( percent < 80 && percent > 20 ) {
+            return this.ProgressBarStatus.WARNING
+        }
+        if ( percent <= 20 ) {
+            return this.ProgressBarStatus.ERROR
+        }
+        return this.ProgressBarStatus.ERROR
+    }
+
+    freezeTimer = () => {
+
     }
 
     decreaseTime = () => {
@@ -27,22 +49,23 @@ class Timer extends React.Component {
         }
         let now = Date.now();
         let timeElapsedInMilliseconds = now - this.state.lastNow;
-        console.log("The timeElapsed is", timeElapsedInMilliseconds/1000);
-        this.setState((old) => (
-            {
-            timeLeft: old.timeLeft - timeElapsedInMilliseconds,
-            lastNow: now,
-            percent: ((old.timeLeft- timeElapsedInMilliseconds)/totalTime )*100,
-            success: ((old.timeLeft- timeElapsedInMilliseconds)/totalTime )*100 >= 80 ? true: false,
-            error: ((old.timeLeft- timeElapsedInMilliseconds)/totalTime )*100 <= 20 ? true: false,
-            warning: ((old.timeLeft - timeElapsedInMilliseconds)/totalTime )*100 > 20 && ((old.timeLeft- timeElapsedInMilliseconds)/totalTime )*100 < 80 ? true: false,
-            disabled: ((old.timeLeft - timeElapsedInMilliseconds)/totalTime )*100 <= 0? true: false,
-            timerDisabled: ((old.timeLeft- timeElapsedInMilliseconds)/totalTime )*100 <= 0
-        }));
+        this.setState((old) => {
+            let timeLeft = old.timeLeft - timeElapsedInMilliseconds;
+            return {
+                timeLeft: timeLeft,
+                lastNow: now,
+                percent: (timeLeft/totalTime )*100,
+                disabled: this.props.disabled || (timeLeft/totalTime)*100 <= 0? true: false,
+                timerDisabled: (timeLeft/totalTime)*100 <= 0
+            }}
+        );
         this.setTimeoutMethod = setTimeout(this.decreaseTime , this.callbackInterval);
     }
 
     componentDidMount() {
+        this.setState({
+            status: this.getStatus(this.state.percent)
+        });
         this.setTimeoutMethod = setTimeout(this.decreaseTime , this.callbackInterval);
     }
 
@@ -57,10 +80,10 @@ class Timer extends React.Component {
         return(
             <>
                 <Progress percent = {this.state.percent} 
-                success={this.state.success} 
-                error = {this.state.error} 
-                warning={this.state.warning} 
-                disabled={this.state.timerDisabled}
+                success = { this.ProgressBarStatus.SUCCESS === this.getStatus(this.state.percent)} 
+                error = { this.ProgressBarStatus.ERROR === this.getStatus(this.state.percent)} 
+                warning = { this.ProgressBarStatus.WARNING === this.getStatus(this.state.percent)} 
+                disabled = {this.state.timerDisabled}
                 style = {{marginTop:'4px', marginBottom:'0px'}}
                 />
             </>
