@@ -1,25 +1,25 @@
 import React from 'react';
-import { Header, Button, Progress } from 'semantic-ui-react'
 import { withRouter } from "react-router-dom";
 import {db} from "../firebase";
 import AppLoader from './AppLoader';
+import Question from './Question';
+import Timer from './Timer';
+import {UserContext} from '../UserProvider';
+
 
 class Quiz extends React.Component {
-    timer = 20*1000;// miliseconds
-    timerInterval = 1000/40; // miliseconds
-    timerMethod = null; // variable for setting the setTimer
+    static contextType = UserContext
+
     state = {
-        question:"Hi How are you",
-        options:['first','second', 'third', 'fourth'],
-        id:'test',
+        question:{  
+            question: "Hi How are you ?",
+            options: ['first','second', 'third', 'fourth'],
+            questionId: 'test'
+        },
+        answer:'',
         disabled:false,
-        timeLeft: this.timer,
-        success: true,
-        warning: false,
-        error:false,
-        percent: 100,
-        timerDisabled: false,
-        isLoading: true
+        isLoading: true,
+        enableFlashing: false,
     }
     // Error creating your option and lets see what can be done from the user end
     postTheAnswer = (option) => {
@@ -27,50 +27,45 @@ class Quiz extends React.Component {
         this.setState({disabled: true});
     }
 
-    decreaseTime = () => {
-        this.setState( (old) =>({
-            timeLeft: old.timeLeft - this.timerInterval,
-            percent: ((old.timeLeft- this.timerInterval)/this.timer )*100,
-            success: old.timeLeft - this.timerInterval >= 8 ? true: false,
-            error: old.timeLeft - this.timerInterval < 4*1000 ? true: false,
-            warning: old.timeLeft - this.timerInterval >= 4*1000 && old.timeLeft - this.timerInterval < 8 ? true: false,
-            disabled: old.timeLeft - this.timerInterval === 0? true: false,
-            timerDisabled: ((old.timeLeft- this.timerInterval)/this.timer ) === 0
-        }));
+    componentDidMount = async() => {
+        this.registerToLiveQuestion();
+        this.registerToLiveAnswer();
     }
 
-    componentDidMount = async() => {
+    disableSubmission = () => {
+        this.setState({
+            disabled:true
+        })
+    }
 
-        let question = db.collection('liveQuestions').doc(this.props.event);
-        question.onSnapshot( docSnapshot =>{
-            this.setState({
-                ...docSnapshot.data(),
-                 disabled:false,
-                  isLoading:false
-            })
-        }, err => {
-            console.log("The error is ", err);
-        });
-
+    registerToLiveAnswer = () => {
         let answer = db.collection('liveAnswers').doc(this.props.event);
         answer.onSnapshot( docSnapshot => {
-            this.setState(docSnapshot.data());
+            if ( docSnapshot.data().questionId === this.state.questionId){
+                this.setState({
+                    ...docSnapshot.data(),
+                    enableFlashing: true});
+            }
         }, err => {
-            console.log("The error is", err);
+            console.error("Failed in fetching the answer", err);
         })
-
-        this.timerMethod = setInterval(this.decreaseTime , this.timerInterval);
-        if (this.state.percent === 0 ) {
-            clearInterval(this.timerMethod);
-            this.timerMethod = null;
-        }
     }
 
-    componentWillUnmount(){
-        if(this.timerMethod !== null){
-           clearInterval(this.timerMethod) ;
-           this.timerMethod = null;
-        }
+    registerToLiveQuestion = () => {
+        let question = db.collection('liveQuestions').doc(this.props.event);
+        question.onSnapshot( docSnapshot => {
+            this.setState({
+                    question: docSnapshot.data(),
+                    disabled:false,
+                    isLoading:false
+            })
+        }, err => {
+            console.log("Failed in fetching the question ", err);
+        });
+    }
+
+    // Flash Color using some other properties that I have to f
+    flashColor = (id, initial, final) => {
     }
 
     renderQuizComponent = () => {
@@ -79,26 +74,14 @@ class Quiz extends React.Component {
         }
         return (
             <>  
-                <Progress percent = {this.state.percent} 
-                success={this.state.success} 
-                error = {this.state.error} 
-                warning={this.state.warning} 
-                disabled={this.state.timerDisabled}
-                style = {{marginTop:'4px', marginBottom:'0px'}}
+                <Timer percent={100} onComplete={this.disableSubmission}/>
+                <Question question = {this.state.question} 
+                    // options = {this.state.options}
+                    disabled = {this.state.disabled}
+                    answer = {this.state.answer}
+                    onClick = {this.postTheAnswer}
+                    questionId = {this.state.questionId}
                 />
-                <Header as="h4" 
-                content = {this.state.question} 
-                style = {{marginBottom:'4px', marginTop:'4px'}}
-                ></Header>
-                {
-                    this.state.options.map( (option,idx) =>
-                        (
-                            idx%2 === 0?
-                            <Button disabled={this.state.disabled} onClick = { () => this.postTheAnswer(option)} fluid>{option}</Button>:
-                            <Button disabled={this.state.disabled} onClick = { () => this.postTheAnswer(option)} fluid>{option}</Button>
-                        )
-                    )
-                }
             </>
         )
     }
