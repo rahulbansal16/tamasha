@@ -8,7 +8,8 @@ class AuthButton extends React.Component {
 
     static contextType = UserContext;
     onClick = () => {
-        if (!this.context){
+        let user = this.context[0].user;
+        if (!user){
             this.props.history.push({
                 pathname:"/login",
                 successUrl: this.props.location
@@ -19,10 +20,11 @@ class AuthButton extends React.Component {
     }
 
     render() {
+        let user = this.context[0].user;
         return (
             <Button primary onClick = {this.onClick}>
                 <Icon name="shop"></Icon>
-                {this.context? this.props.authText || this.props.unAuthText: this.props.unAuthText || this.props.authText}
+                {user? this.props.authText || this.props.unAuthText: this.props.unAuthText || this.props.authText}
             </Button>
         )
     }
