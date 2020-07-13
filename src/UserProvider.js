@@ -1,31 +1,34 @@
-import React, { Component, createContext } from "react";
-import { auth, generateUserDocument } from "./firebase";
+import React, {createContext, useEffect, useReducer} from "react";
+import { auth} from "./firebase";
+import Reducer from '../src/reducer';
 
-export const UserContext = createContext({ user: null });
-export const UserConsumer = UserContext.Consumer;
+const initialState = {
+  user: null,
+  error: null,
+  disableTimer: false  
+};
 
-class UserProvider extends Component {
-  state = {
-    user: null
-  };
+const UserProvider = ({children}) => {
+  const [state, dispatch] = useReducer(Reducer, initialState);
+  useEffect(() => {
+    async function updateUserState() {
+      auth.onAuthStateChanged( async userAuth => {
+        this.setState({ user: userAuth});
+        console.log("The user auth state changed", userAuth);
+        // This will give a rough user state
+        // That can be used by someone
+        // const user = await generateUserDocument(userAuth);
+      });
+    }
+    updateUserState();
+  },[]);
 
-  componentDidMount = async () => {
-    auth.onAuthStateChanged( async userAuth => {
-      this.setState({ user: userAuth});
-      console.log("The user auth state changed", userAuth);
-      // This will give a rough user state
-      // That can be used by someone
-      // const user = await generateUserDocument(userAuth);
-    });
-  };
-
-
-  render() {
     return (
-      <UserContext.Provider value={this.state.user}>
-        {this.props.children}
+      <UserContext.Provider value={[state, dispatch]}>
+        {children}
       </UserContext.Provider>
     );
-  }
 }
+export const UserContext = createContext(initialState);
+export const UserConsumer = UserContext.Consumer;
 export default UserProvider;
