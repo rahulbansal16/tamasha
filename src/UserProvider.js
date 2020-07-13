@@ -1,6 +1,6 @@
 import React, {createContext, useEffect, useReducer} from "react";
 import { auth} from "./firebase";
-import Reducer from '../src/reducer';
+import Reducer, {ACTIONS} from '../src/reducer';
 
 const initialState = {
   user: null,
@@ -13,7 +13,7 @@ const UserProvider = ({children}) => {
   useEffect(() => {
     async function updateUserState() {
       auth.onAuthStateChanged( async userAuth => {
-        this.setState({ user: userAuth});
+        dispatch({ payload: {user: userAuth}, type:ACTIONS.UPDATE_AUTH });
         console.log("The user auth state changed", userAuth);
         // This will give a rough user state
         // That can be used by someone
