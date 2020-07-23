@@ -15,8 +15,9 @@ import Home from './container/Home';
 import LogoutPage from './container/LogoutPage';
 import UserPage from './container/UserPage';
 import HostEventPage from './container/host/HostEventPage';
-import HostLiveEventPage from './container/host/HostEventPage';
+import HostLiveEventPage from './container/host/HostLiveEventPage';
 import {functions} from './firebase';
+import EditHostEventPage from './container/host/EditHostEventPage';
 
 class App extends React.Component {
 
@@ -47,10 +48,13 @@ class App extends React.Component {
               <Route path="/login"
                 render = {(props) => <Login {...props} authenticated = {this.state.authenticated} />}/>
 {/* TODO: Make the host endpoint only accessible to the creator of the event  */}
-              <Route path = "/event/host/:id"
-                render = {(props) => <HostEventPage {...props}/>} />      
+              <Route path = "/event/host/:id/edit"
+                render = {(props) => <EditHostEventPage {...props}/>} />   
               <Route path = "/event/host/:id/live"
-                render = {(props) => <HostLiveEventPage {...props}/>} />                 
+                render = {(props) => <HostLiveEventPage {...props}/>} /> 
+              <Route path = "/event/host/:id"
+                render = {(props) => <HostEventPage {...props}/>} />    
+                             
               <Route path = "/event/:id/live"
                 render = {(props) => <LiveEventPage {...props}/>} />   
               <Route path = "/event/:id"
