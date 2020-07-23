@@ -1,7 +1,10 @@
 import React from 'react';
 import {Progress} from 'semantic-ui-react';
+import {UserContext} from '../UserProvider';
 
 class Timer extends React.Component {
+
+    static contextType = UserContext;
 
     ProgressBarStatus = {
         SUCCESS:'success',
@@ -59,14 +62,17 @@ class Timer extends React.Component {
                 timerDisabled: (timeLeft/totalTime)*100 <= 0
             }}
         );
-        this.setTimeoutMethod = setTimeout(this.decreaseTime , this.callbackInterval);
+        if(!this.context[0].submission.submitted)
+            this.setTimeoutMethod = setTimeout(this.decreaseTime , this.callbackInterval);
     }
 
     componentDidMount() {
         this.setState({
             status: this.getStatus(this.state.percent)
         });
-        this.setTimeoutMethod = setTimeout(this.decreaseTime , this.callbackInterval);
+        console.log("The value of the context is",this.context[0].submission.submitted);
+        if (!this.context[0].submission.submitted)
+            this.setTimeoutMethod = setTimeout(this.decreaseTime , this.callbackInterval);
     }
 
     componentWillUnmount(){
@@ -77,13 +83,15 @@ class Timer extends React.Component {
     }
 
     render(){
+        // let timerDisabled = this.context[0].submission.submitted;
+        console.log("Rerendering the Timer", this.context[0].submission.submitted);
         return(
             <>
                 <Progress percent = {this.state.percent} 
                 success = { this.ProgressBarStatus.SUCCESS === this.getStatus(this.state.percent)} 
                 error = { this.ProgressBarStatus.ERROR === this.getStatus(this.state.percent)} 
                 warning = { this.ProgressBarStatus.WARNING === this.getStatus(this.state.percent)} 
-                disabled = {this.state.timerDisabled}
+                // disabled = {timerDisabled || this.state.timerDisabled}
                 style = {{marginTop:'4px', marginBottom:'0px'}}
                 />
             </>
