@@ -3,9 +3,14 @@ import { auth} from "./firebase";
 import Reducer, {ACTIONS} from '../src/reducer';
 
 const initialState = {
-  user: null,
-  error: null,
-  disableTimer: false  
+  user: undefined,
+  error: undefined,
+  disableTimer: false,
+  submission: {
+    qid: undefined,
+    option: undefined,
+    submitted: false
+  }
 };
 
 const UserProvider = ({children}) => {
