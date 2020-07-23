@@ -5,7 +5,7 @@ import {UserContext} from '../UserProvider';
 class RedirectToLogin extends React.Component {
     static contextType = UserContext;
     render(){
-        if (!this.context){
+        if (!this.context.user){
             this.props.history.push({
                 pathname:"/login",
                 successUrl: this.props.location
