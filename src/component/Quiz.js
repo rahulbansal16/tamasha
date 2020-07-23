@@ -5,6 +5,7 @@ import AppLoader from './AppLoader';
 import Question from './Question';
 import Timer from './Timer';
 import {UserContext} from '../UserProvider';
+import { ACTIONS } from '../reducer';
 
 
 class Quiz extends React.Component {
@@ -23,8 +24,18 @@ class Quiz extends React.Component {
     }
     // Error creating your option and lets see what can be done from the user end
     postTheAnswer = (option) => {
+        const[state, dispatch] = this.context;
+        dispatch({
+            payload:{ submission: {
+                qid: this.state.question.questionId,
+                option: option,
+                submitted: true
+            }},
+            type: ACTIONS.SUBMIT_ANSWER
+        });
         console.log("Posting the options for the question", option);
         this.setState({disabled: true});
+        // Add the code to make sure that 
     }
 
     componentDidMount = async() => {
