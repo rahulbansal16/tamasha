@@ -16,6 +16,14 @@ class HostEventPage extends React.Component {
         eventStarted: false
     };
 
+    redirectToLive = () => {
+        this.props.history.push({
+            pathname: this.props.location.pathname + '/live',
+            // videoStreamUrl: this.state.event.videoStreamUrl,
+            event: this.state.event
+        })  
+    }
+
     componentDidMount = async () => {
         let id  = this.props.match.params.id
         let eventData = this.props.location.card;
@@ -44,18 +52,22 @@ class HostEventPage extends React.Component {
                         <Card.Description>{description}</Card.Description>
                     </Card.Content>
                     <Card.Content extra>
+                        <Button onClick={this.startEvent}>Start Event</Button>
                     </Card.Content>
                 </Card>
             </>
             );
     }
 
+    startEvent = () => {
+        this.redirectToLive();
+    }
     populateEvent = () => {
         const eventStarted = this.state.eventStarted;
         return (
             <div>
                 {eventStarted?
-                <HostLiveEventPage/>:
+                this.redirectToLive():
                 this.populateEventInfo(this.state.event)}:
             </div>
         )
