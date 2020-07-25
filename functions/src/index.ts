@@ -38,6 +38,31 @@ exports.addUserEntry = functions.auth.user().onCreate( (userData) => {
     .catch( () => console.log("Unable to add user in the users table", userData))
 })
 
+exports.pushNextQuestion = functions.https.onCall((data, context) => {
+    console.log("Pushing the next question");
+    if (!context || !context.auth){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+    const uid = context.auth.uid || null;
+    if (!uid){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+    // For pushing the next questions the user will create 
+    // Add a check only if the user of the app is able to ac
+    admin.firestore().collection('questions').doc(data.eventId)
+    .collection(data.order).doc('questions').get()
+    .then(question => {
+        admin.firestore().collection('liveQuestions')
+        .doc(data.eventId).
+        update(question)
+        .then().catch()
+    })
+    .catch( err => {
+        console.log("Unable to fetch the question", err);
+        throw new functions.https.HttpsError('unknown', "Unknown error while updating the status")
+    })
+})
+
 exports.updateEventStatus = functions.https.onCall((data, context) => {
     if (!context || !context.auth){
         throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
