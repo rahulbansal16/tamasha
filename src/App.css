@@ -7,12 +7,6 @@
   width: 300px;
 } */
 
-.fadeInUp {
-  animation-name: fadeInUp;
-  animation-duration: 0.45s;
-  animation-fill-mode: both;
-}
-
 @keyframes fadeInUp {
   0% {
     opacity: 0;
@@ -30,6 +24,36 @@
   animation-duration: 0.45s;
   animation-fill-mode: both;
 }
+
+@keyframes flashGreen {
+  0% {
+    opacity: 1;
+    color: green;
+  }
+
+  100% {
+    opacity: 1;
+    color: green;
+  }
+}
+
+.flashGreen {
+  animation-name: flashGreen;
+  animation-duration: 0.45s;
+  animation-fill-mode: both;
+}
+
+.blink {
+  animation: blinker 0.75s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity:50;
+    color: green !important;
+  }
+}
+
 
 img {
   max-width: 100%;

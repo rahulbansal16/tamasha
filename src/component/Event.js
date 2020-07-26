@@ -1,8 +1,9 @@
 /* eslint-disable no-unreachable */
 import React from 'react';
-import {Card, Button, Icon, Image} from 'semantic-ui-react';
+import {Card, Button, Icon, Image, Transition} from 'semantic-ui-react';
 // import CalendarPopup from './CalendarPopup';
 import { withRouter } from "react-router-dom";
+import LazyImage from './LazyImage';
 
 class Event extends React.Component {
 
@@ -33,8 +34,10 @@ class Event extends React.Component {
     // }
 
     cardExampleCard = ({name, id, description}) => (
-        <Card fluid as ='a' onClick = { () => this.props.onCardClick(this.props.card.id)}>
-          <Image src='https://react.semantic-ui.com/images/avatar/large/matthew.png' wrapped ui={false} />
+      // <Transition visible animation="fly up" duration={50000}>
+        <Card className="fadeInUp" fluid as ='a' onClick = { () => this.props.onCardClick(this.props.card.id)}>
+          <LazyImage src='https://react.semantic-ui.com/images/avatar/large/matthew.png' wrapped ui={false} 
+          size = "medium"/>
           <Card.Content>
             <Card.Header>{name}</Card.Header>
             <Card.Meta>
@@ -49,8 +52,10 @@ class Event extends React.Component {
               <Icon name='user' />
               22 Registration
             </a>
+            {this.props.children}
           </Card.Content>
         </Card>
+        // </Transition>
       )
       
  
@@ -60,7 +65,6 @@ class Event extends React.Component {
             author:'Rahul Bansal',
         };
         return this.cardExampleCard(this.props.card);
-    
     }
 };
 export default withRouter(Event);

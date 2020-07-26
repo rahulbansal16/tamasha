@@ -69,6 +69,7 @@ class LiveEventPage extends React.Component {
                     {
                         this.state.eventStatus === EventStatus.LIVE?
                         this.populateEvent(id):
+                        // TODO: Added for testing
                         this.populateEvent(id)
                         // this.eventNotLive()
                     }

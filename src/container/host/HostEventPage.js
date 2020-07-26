@@ -24,6 +24,13 @@ class HostEventPage extends React.Component {
         })  
     }
 
+    editEvent = () => {
+        this.props.history.push({
+            pathname: this.props.location.pathname + '/edit',
+            event: this.state.event
+        })
+    }
+
     componentDidMount = async () => {
         let id  = this.props.match.params.id
         let eventData = this.props.location.card;
@@ -53,6 +60,7 @@ class HostEventPage extends React.Component {
                     </Card.Content>
                     <Card.Content extra>
                         <Button onClick={this.startEvent}>Start Event</Button>
+                        <Button onClick={this.editEvent}>Edit Event</Button>
                     </Card.Content>
                 </Card>
             </>
