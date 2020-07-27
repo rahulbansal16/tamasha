@@ -41,6 +41,7 @@ exports.addUserEntry = functions.auth.user().onCreate( (userData) => {
 exports.pushNextQuestion = functions.https.onCall((data, context) => {
     console.log("Pushing the next question");
     if (!context || !context.auth){
+        console.error("Error auth", data)
         throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
     }
     const uid = context.auth.uid || null;
@@ -49,13 +50,22 @@ exports.pushNextQuestion = functions.https.onCall((data, context) => {
     }
     // For pushing the next questions the user will create 
     // Add a check only if the user of the app is able to ac
-    admin.firestore().collection('questions').doc(data.eventId)
-    .collection(data.order).doc('questions').get()
-    .then(question => {
+    console.log("The data is", data);
+    // admin.firestore().collection('questions').doc(data.eventId)
+    // .collection(data.order).doc('questions').get()
+    admin.firestore().doc('questions/'+data.eventId + '/' + data.order + '/questions').get()
+    .then((question: any) => {
+        console.log("Successfully fetch the next question", question);
         admin.firestore().collection('liveQuestions')
         .doc(data.eventId).
-        update(question)
-        .then().catch()
+        update(question.data())
+        .then((updateQuestion:any) => {
+            console.log("Updated the question", updateQuestion.data());
+        }).catch(
+            err => {
+                console.log("Unable to update the liveQuestion", err);
+            }
+        )
     })
     .catch( err => {
         console.log("Unable to fetch the question", err);
