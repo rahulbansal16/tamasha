@@ -38,6 +38,37 @@ exports.addUserEntry = functions.auth.user().onCreate( (userData) => {
     .catch( () => console.log("Unable to add user in the users table", userData))
 })
 
+exports.revealAnswer = functions.https.onCall((data, context) => {
+    console.log("Revealing the answer");
+    if (!context || !context.auth){
+        console.error("Error auth", data)
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+    const uid = context.auth.uid || null;
+    if (!uid){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }  
+    console.log("The data is", data);
+    admin.firestore().doc('questionBank/' + data.questionId).get()
+    .then((question: any) => {
+        console.log("Successfully push the next Answer", question);
+        admin.firestore().collection('liveAnswers')
+        .doc(data.eventId).
+        update(question.data())
+        .then((updateAnswer:any) => {
+            console.log("Updated the Answer", updateAnswer.data());
+        }).catch(
+            err => {
+                console.log("Unable to update the Answer", err);
+            }
+        )
+    })
+    .catch( err => {
+        console.log("Unable to fetch the question", err);
+        throw new functions.https.HttpsError('unknown', "Unknown error while updating the status")
+    })
+})
+
 exports.pushNextQuestion = functions.https.onCall((data, context) => {
     console.log("Pushing the next question");
     if (!context || !context.auth){
