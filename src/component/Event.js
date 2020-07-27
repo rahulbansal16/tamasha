@@ -48,10 +48,8 @@ class Event extends React.Component {
             </Card.Description>
           </Card.Content>
           <Card.Content extra>
-            <a>
-              <Icon name='user' />
-              22 Registration
-            </a>
+            <Icon name='user' />
+            22 Registration
             {this.props.children}
           </Card.Content>
         </Card>

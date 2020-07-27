@@ -38,7 +38,7 @@ class EventGrid extends React.Component {
     render(){
         return (
             this.state.isLoading ? this.playLoader() :
-            this.state.result.map( card => (<Event card={card} onCardClick={this.props.onCardClick}/>))
+            this.state.result.map( card => (<Event key = {card.id} card={card} onCardClick={this.props.onCardClick}/>))
         );
     }
 
