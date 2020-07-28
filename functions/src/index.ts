@@ -50,11 +50,12 @@ exports.revealAnswer = functions.https.onCall((data, context) => {
     }  
     console.log("The data is", data);
     admin.firestore().doc('questionBank/' + data.questionId).get()
-    .then((question: any) => {
-        console.log("Successfully push the next Answer", question);
+    .then((answer: any) => {
+        console.log("Successfully push the next Answer", answer.data());
         admin.firestore().collection('liveAnswers')
         .doc(data.eventId).
-        update(question.data())
+        set({...answer.data()}, {merge: true})
+        // update(question.data())
         .then((updateAnswer:any) => {
             console.log("Updated the Answer", updateAnswer.data());
         }).catch(
