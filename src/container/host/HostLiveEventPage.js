@@ -1,5 +1,5 @@
 import React from 'react';
-import {Header, Button, Icon, Grid, Segment, Container} from 'semantic-ui-react';
+import {Header, Button, Icon, Container} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
 import {db} from '../../firebase';
 import AppLoader from '../../component/AppLoader';
@@ -16,13 +16,10 @@ class HostLiveEventPage extends React.Component {
         loading:true,
         eventStarted:true,
         answer:undefined,
-        questionNumber:0,
-        currentQustion:undefined,
         revealAnswer:false,
         nextQuestion:undefined,
         fetchNextQuestion:'',
-        question:undefined,
-        order: undefined
+        order: 0
     }
 
     componentDidMount = async () => {
@@ -48,8 +45,21 @@ class HostLiveEventPage extends React.Component {
         }
       }
 
-    revealAnswerHandler = () => {
+    revealAnswerHandler = async () => {
         console.log("Revealing the answer");
+        console.log("Pushing the next Question");
+        try {
+          const revealAnswer = functions.httpsCallable('revealAnswer');
+          const res = await revealAnswer({
+            eventId: this.props.match.params.id,
+            questionId: 'bgJv6mDpQj456yN4GxzR'
+            });
+          return res
+        }
+        catch (err){
+          console.error("Error in revealingAnswer", err);
+          return undefined;
+        }
     }
 
     render () {
@@ -65,7 +75,7 @@ class HostLiveEventPage extends React.Component {
                             <Button fluid floated="left" icon labelPosition='right' onClick={this.nextQuestionHandler}>Next Question<Icon name="arrow right"></Icon></Button>
                             <Button fluid floated="right" icon labelPosition='right' onClick={this.revealAnswerHandler}>Reveal Answer<Icon name="bell outline"></Icon></Button>                    
                         </div>
-                        <Button fluid negative><Icon name="arrow"></Icon> End Contest</Button>
+                        <Button fluid negative><Icon name="arrow right"></Icon> End Contest</Button>
                     </div>
                     <IQSummary/>                
                 </AppLoader>
