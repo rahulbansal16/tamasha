@@ -20,7 +20,6 @@ class Quiz extends React.Component {
         answer:'',
         disabled:false,
         isLoading: true,
-        enableFlashing: false,
     }
     // Error creating your option and lets see what can be done from the user end
     postTheAnswer = (option) => {
@@ -52,10 +51,11 @@ class Quiz extends React.Component {
     registerToLiveAnswer = () => {
         let answer = db.collection('liveAnswers').doc(this.props.event);
         answer.onSnapshot( docSnapshot => {
-            if ( docSnapshot.data().questionId === this.state.questionId){
+            console.log("The new snapshot is", docSnapshot);
+            if ( true || docSnapshot.data().questionId === this.state.questionId){
                 this.setState({
                     ...docSnapshot.data(),
-                    enableFlashing: true});
+                    });
             }
         }, err => {
             console.error("Failed in fetching the answer", err);
@@ -68,7 +68,8 @@ class Quiz extends React.Component {
             this.setState({
                     question: docSnapshot.data(),
                     disabled:false,
-                    isLoading:false
+                    isLoading:false,
+                    answer: undefined
             })
         }, err => {
             console.log("Failed in fetching the question ", err);
@@ -87,7 +88,6 @@ class Quiz extends React.Component {
             <>  
                 <Timer percent={100} onComplete={this.disableSubmission}/>
                 <Question question = {this.state.question} 
-                    // options = {this.state.options}
                     disabled = {this.state.disabled}
                     answer = {this.state.answer}
                     onClick = {this.postTheAnswer}
