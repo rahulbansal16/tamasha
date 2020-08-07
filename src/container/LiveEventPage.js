@@ -1,5 +1,5 @@
 import React from 'react';
-import {Container} from 'semantic-ui-react';
+import {Container, Header, Loader} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
 import Quiz from '../component/Quiz'
 import {db} from '../firebase';
@@ -33,7 +33,6 @@ class LiveEventPage extends React.Component {
             loading: false,
             videoStreamUrl: event.videoStreamUrl,
             event: event,
-            // TODO: Add a field called eventStatus in the event json
             eventStatus: event.eventStatus
         })
     };
@@ -53,9 +52,10 @@ class LiveEventPage extends React.Component {
     eventNotLive = () => {
         return (
             <>
-                The Event is not live yet. 
-                Please wait for some time.
-                Once the show gets over.
+                <Header as='h3' textAlign="center"
+                    content='Wating for the Host to start the Event'/>
+                <Loader active inline="centered" content = {"Fetching the Event Status"}></Loader>
+                {/* <Header as="h4" textAlign="center" content="Refresh to continue"/> */}
             </>
         );
     }
@@ -69,9 +69,7 @@ class LiveEventPage extends React.Component {
                     {
                         this.state.eventStatus === EventStatus.LIVE?
                         this.populateEvent(id):
-                        // TODO: Added for testing
-                        this.populateEvent(id)
-                        // this.eventNotLive()
+                        this.eventNotLive()
                     }
                 </AppLoader>
             </Container>
