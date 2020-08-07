@@ -170,7 +170,7 @@ exports.fetchUserPayment = functions.https.onCall((data, context) => {
         throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
     }
     console.log("Checking the fetchUserPayment api");
-    admin.firestore().collection('eventRegistration')
+    return admin.firestore().collection('eventRegistration')
     .doc(data.eventId)
     .get()
     .then( snap => {
