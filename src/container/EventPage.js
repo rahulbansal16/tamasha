@@ -51,7 +51,7 @@ class EventPage extends React.Component {
       try {
         const paymentStatus = functions.httpsCallable('fetchUserPayment');
         let res = await paymentStatus({eventId: this.props.match.params.id});
-        return res.data().paymentStatus
+        return res.data.paymentStatus
       }
       catch (err){
         console.error("Error fetching the payment status", err);
