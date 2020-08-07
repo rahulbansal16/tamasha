@@ -50,8 +50,8 @@ class EventPage extends React.Component {
     fetchPaymentStatus = async () => {
       try {
         const paymentStatus = functions.httpsCallable('fetchUserPayment');
-        const res = await paymentStatus({eventId: this.props.match.params.id});
-        return res.paymentStatus
+        let res = await paymentStatus({eventId: this.props.match.params.id});
+        return res.data().paymentStatus
       }
       catch (err){
         console.error("Error fetching the payment status", err);
@@ -67,7 +67,7 @@ class EventPage extends React.Component {
     // payment page and from there the user is taken to do somthing
 
     onClick = () => {
-        if (!this.state.paymentStatus === PaymentStatus.PENDING){
+        if (this.state.paymentStatus === PaymentStatus.PENDING){
             console.log("Redirecting to the payment page");
         }
         if (this.state.paymentStatus === PaymentStatus.RECEIVED &&
