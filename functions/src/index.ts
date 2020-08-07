@@ -169,6 +169,7 @@ exports.fetchUserPayment = functions.https.onCall((data, context) => {
     if (!uid){
         throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
     }
+    console.log("Checking the fetchUserPayment api");
     admin.firestore().collection('eventRegistration')
     .doc(data.eventId)
     .get()
@@ -176,19 +177,25 @@ exports.fetchUserPayment = functions.https.onCall((data, context) => {
         if (!snap){
             throw new functions.https.HttpsError('unknown', "Event with the name does not exist")
         }
+        console.log("Fetched the Event Info about the required event", snap);
         const paymentStatuses: any = (snap.data()|| {paymentStatus:[] }).paymentStatus;
-        const paymentIndex = paymentStatuses.indexOf( (paymentStatus: any)=> {
-            if (paymentStatus.uid === uid){
-                return 
-            }
-        });
-
+        console.log("Fetching the payment status for the event", paymentStatuses);
+        const paymentIndex = paymentStatuses.indexOf(uid);
+        console.log("Fetching the uid in the payment Status ", paymentIndex);
         if (paymentIndex !== -1){
+            console.log("Returing the value", {
+                uid: uid,
+                paymentStatus: PaymentStatus.RECEIVED
+            })
             return {
-                ...paymentStatuses[paymentIndex],
+                uid: uid,
                 paymentStatus: PaymentStatus.RECEIVED
             }
         } else {
+            console.log("Returning the value", {
+                uid: uid,
+                paymentStatus: PaymentStatus.PENDING
+            })
             return {
                 paymentStatus: PaymentStatus.PENDING,
                 uid: uid
