@@ -38,6 +38,26 @@ exports.addUserEntry = functions.auth.user().onCreate( (userData) => {
     .catch( () => console.log("Unable to add user in the users table", userData))
 })
 
+exports.createQuestions = functions.https.onCall((data, context) => {
+    console.log("Pushing the questions in the event");
+    if (!context || !context.auth){
+        console.error("Error auth", data)
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+    const uid = context.auth.uid || null;
+    if (!uid){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+    // TODO: Add the logic of allowing only creator to edit this
+    var batch = admin.firestore().batch()
+    data.questions.forEach((question: any) => {
+        console.log('questions/' + data.eventId + '/questions'+ question['order'])
+        const questionsRef = admin.firestore().collection('questions/' + data.eventId + '/questions').doc(question['order']);
+        batch.set(questionsRef, question)
+    });
+    batch.commit().then().catch();
+})
+
 exports.revealAnswer = functions.https.onCall((data, context) => {
     console.log("Revealing the answer");
     if (!context || !context.auth){
@@ -93,6 +113,7 @@ exports.pushNextQuestion = functions.https.onCall((data, context) => {
         update(question.data())
         .then((updateQuestion:any) => {
             console.log("Updated the question", updateQuestion.data());
+            return {}
         }).catch(
             err => {
                 console.log("Unable to update the liveQuestion", err);
