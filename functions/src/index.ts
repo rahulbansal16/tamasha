@@ -51,8 +51,8 @@ exports.createQuestions = functions.https.onCall((data, context) => {
     // TODO: Add the logic of allowing only creator to edit this
     var batch = admin.firestore().batch()
     data.questions.forEach((question: any) => {
-        console.log('questions/' + data.eventId + '/questions'+ question['order'])
-        const questionsRef = admin.firestore().collection('questions/' + data.eventId + '/questions').doc(question['order']);
+        console.log('questions/' + data.eventId + '/questions/'+ question['order'])
+        const questionsRef = admin.firestore().collection('questions/' + data.eventId + '/questions/').doc(`${question['order']}`);
         batch.set(questionsRef, question)
     });
     batch.commit().then().catch();
