@@ -65,12 +65,14 @@ class Quiz extends React.Component {
     registerToLiveQuestion = () => {
         let question = db.collection('liveQuestions').doc(this.props.event);
         question.onSnapshot( docSnapshot => {
-            this.setState({
-                    question: docSnapshot.data(),
-                    disabled:false,
-                    isLoading:false,
-                    answer: undefined
-            })
+            if (Object.entries(docSnapshot.data()).length !== 0){
+                this.setState({
+                        question: docSnapshot.data(),
+                        disabled:false,
+                        isLoading:false,
+                        answer: undefined
+                })
+            }
         }, err => {
             console.log("Failed in fetching the question ", err);
         });

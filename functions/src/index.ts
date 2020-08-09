@@ -105,20 +105,22 @@ exports.pushNextQuestion = functions.https.onCall((data, context) => {
     console.log("The data is", data);
     // admin.firestore().collection('questions').doc(data.eventId)
     // .collection(data.order).doc('questions').get()
-    admin.firestore().doc('questions/'+data.eventId + '/' + data.order + '/questions').get()
+    return admin.firestore().doc('questions/'+data.eventId + '/questions/' + data.order ).get()
     .then((question: any) => {
-        console.log("Successfully fetch the next question", question);
-        admin.firestore().collection('liveQuestions')
-        .doc(data.eventId).
-        update(question.data())
-        .then((updateQuestion:any) => {
-            console.log("Updated the question", updateQuestion.data());
-            return {}
-        }).catch(
-            err => {
+        console.log("Successfully fetch the next question", question.data());
+        if(question){
+            admin.firestore().collection('liveQuestions')
+            .doc(data.eventId).
+            update(question.data())
+            .then((updateQuestion:any) => {
+                console.log("Updated the question", updateQuestion.data());
+                return {}
+            }).catch(
+                err => {
                 console.log("Unable to update the liveQuestion", err);
-            }
-        )
+                }
+            )
+        }
     })
     .catch( err => {
         console.log("Unable to fetch the question", err);
@@ -134,13 +136,15 @@ exports.updateEventStatus = functions.https.onCall((data, context) => {
     if (!uid){
         throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
     }
-    admin.firestore().collection('events')
-    .doc(data.eventId)
+    console.log("The user id is", uid);
+    console.log("The status path is events/", `${data.eventId}`);
+    return admin.firestore().collection('events')
+    .doc(`${data.eventId}`)
     .get()
     .then((event:any) => {
         if (event.data().creator === uid){
             console.log();
-            admin.firestore().collection('events').doc(data.eventID).update({
+            return admin.firestore().collection('events').doc(data.eventId).update({
                 eventStatus: data.eventStatus
              })
              .then( (result) => result)
@@ -355,20 +359,20 @@ app.post('/event/:id/question/:number', (req, res) => {
     })
 });
 
-app.get('/event/:eventID/question/:questionID/submit', (req, res) => {
+app.get('/event/:eventId/question/:questionID/submit', (req, res) => {
 
     // I am submitting the answer to a particular question in my codebase
     // userAnswer/:userId/event/:eventId/
 
-    const userID = "rahul" 
-    const eventID = "evend"
-    // const eventID = req.params.eventID
-    // const eventCollectionPath = 'userAnswer/' + userID + '/' + 'event' + '/' + eventID
+    const userId = "rahul" 
+    const eventId = "evend"
+    // const eventId = req.params.eventId
+    // const eventCollectionPath = 'userAnswer/' + userId + '/' + 'event' + '/' + eventId
     // const questionID:string = req.params.questionID.toLowerCase()
     let ob = {'randomQuestionID': 'answer'};
     // ob[questionID] = "rahul"
 
-    admin.firestore().collection('userAnswer').doc(userID).collection('event').doc(eventID).set(ob, {merge:true})
+    admin.firestore().collection('userAnswer').doc(userId).collection('event').doc(eventId).set(ob, {merge:true})
     .then(() => res.send("creating document"))
     .catch(() => res.send("failed to create document"))
 

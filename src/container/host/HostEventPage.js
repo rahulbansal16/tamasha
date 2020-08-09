@@ -2,8 +2,10 @@ import React from 'react';
 import { Image, Card, Button, Container, Icon, Header} from 'semantic-ui-react';
 import AppLoader from "../../component/AppLoader"
 import {withRouter} from "react-router-dom";
-import {db} from '../../firebase';
-import HostLiveEventPage from './HostLiveEventPage';
+import {db, functions} from '../../firebase';
+import {EventStatus} from '../../Const';
+import AuthButton from '../../component/AuthButton';
+
 // import {UserContext} from '../../../UserProvider';
 
 // TODO: Figure out a way to fetch the user info from the cards
@@ -59,16 +61,27 @@ class HostEventPage extends React.Component {
                         <Card.Description>{description}</Card.Description>
                     </Card.Content>
                     <Card.Content extra>
-                        <Button onClick={this.startEvent}>Start Event</Button>
-                        <Button onClick={this.editEvent}>Edit Event</Button>
+                        <AuthButton onClick={this.startEvent} authText="Start Event"></AuthButton>
+                        <AuthButton onClick={this.editEvent} authText="Edit Event"></AuthButton>
                     </Card.Content>
                 </Card>
             </>
             );
     }
 
-    startEvent = () => {
-        this.redirectToLive();
+    startEvent = async () => {
+        try {
+            const updateEventStatus = functions.httpsCallable('updateEventStatus');
+            let result = await updateEventStatus({
+                eventId: this.props.match.params.id,
+                eventStatus: EventStatus.LIVE
+            });
+            console.log("Error in changing the Event Status", result);
+            this.redirectToLive();
+        }
+        catch (err){
+            console.error("Unable to update the status of the events", err);
+        } 
     }
     populateEvent = () => {
         const eventStarted = this.state.eventStarted;

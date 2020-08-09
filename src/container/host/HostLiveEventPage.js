@@ -19,14 +19,10 @@ class HostLiveEventPage extends React.Component {
         revealAnswer:false,
         nextQuestion:undefined,
         fetchNextQuestion:'',
-        order: 0
     }
+    order = 0;
 
     componentDidMount = async () => {
-        let id  = this.props.match.params.id
-        this.setState({
-            loading:false,
-        })
     };
 
 
@@ -35,8 +31,9 @@ class HostLiveEventPage extends React.Component {
         try {
           const pushNextQuestion = functions.httpsCallable('pushNextQuestion');
           const res = await pushNextQuestion({eventId: this.props.match.params.id,
-            order:this.state.order
+            order: this.order
         });
+          this.order = this.order + 1;
           return res
         }
         catch (err){
@@ -67,7 +64,6 @@ class HostLiveEventPage extends React.Component {
         console.log("The id of the event is", id);
         return(
             <Container>
-                <AppLoader loading={this.state.loading}>
                     <Header content="This is the host live page"></Header>
                     <Quiz event = {id}/>
                     <div style = {{ display:'flex', flexWrap:'wrap', marginTop:'8px'}}>
@@ -78,7 +74,6 @@ class HostLiveEventPage extends React.Component {
                         <Button fluid negative><Icon name="arrow right"></Icon> End Contest</Button>
                     </div>
                     <IQSummary/>                
-                </AppLoader>
             </Container>
         );
     }
