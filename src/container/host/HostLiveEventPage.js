@@ -1,13 +1,11 @@
 import React from 'react';
 import {Header, Button, Icon, Container} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
-import {db} from '../../firebase';
-import AppLoader from '../../component/AppLoader';
 import Quiz from '../../component/Quiz';
-import AuthButton from '../../component/AuthButton';
-import Question from '../../component/Question';
 import IQSummary from '../../component/host/IQSummary'
 import {functions} from '../../firebase';
+import {EventStatus} from '../../Const';
+
 
 
 class HostLiveEventPage extends React.Component {
@@ -59,21 +57,39 @@ class HostLiveEventPage extends React.Component {
         }
     }
 
+    endEvent = async () => {
+      try {
+          const updateEventStatus = functions.httpsCallable('updateEventStatus');
+          let result = await updateEventStatus({
+              eventId: this.props.match.params.id,
+              eventStatus: EventStatus.ENDED
+          });
+          const endContest = functions.httpsCallable('endContest');
+          await endContest({
+            eventId: this.props.match.params.id,
+          });
+          console.log("Error in changing the Event Status", result);
+      }
+      catch (err){
+          console.error("Unable to update the status of the events", err);
+      } 
+  }
+
     render () {
         let id  = this.props.match.params.id
         console.log("The id of the event is", id);
         return(
             <Container>
-                    <Header content="This is the host live page"></Header>
-                    <Quiz event = {id}/>
-                    <div style = {{ display:'flex', flexWrap:'wrap', marginTop:'8px'}}>
-                        <div style = {{display:'flex',width:'100%'}}>
-                            <Button fluid floated="left" icon labelPosition='right' onClick={this.nextQuestionHandler}>Next Question<Icon name="arrow right"></Icon></Button>
-                            <Button fluid floated="right" icon labelPosition='right' onClick={this.revealAnswerHandler}>Reveal Answer<Icon name="bell outline"></Icon></Button>                    
-                        </div>
-                        <Button fluid negative><Icon name="arrow right"></Icon> End Contest</Button>
-                    </div>
-                    <IQSummary/>                
+              <Header content="This is the host live page"></Header>
+              <Quiz event = {id}/>
+              <div style = {{ display:'flex', flexWrap:'wrap', marginTop:'8px'}}>
+                  <div style = {{display:'flex',width:'100%'}}>
+                      <Button fluid floated="left" icon labelPosition='right' onClick={this.nextQuestionHandler}>Next Question<Icon name="arrow right"></Icon></Button>
+                      <Button fluid floated="right" icon labelPosition='right' onClick={this.revealAnswerHandler}>Reveal Answer<Icon name="bell outline"></Icon></Button>                    
+                  </div>
+                  <Button fluid negative onClick = {this.endEvent}><Icon name="arrow right"></Icon> End Contest</Button>
+              </div>
+              <IQSummary/>                
             </Container>
         );
     }
