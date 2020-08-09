@@ -211,6 +211,27 @@ exports.fetchUserPayment = functions.https.onCall((data, context) => {
         throw new functions.https.HttpsError('unknown', "Error fetching the payment status")
     }) 
 })
+exports.endContest = functions.https.onCall((data, context) => {
+    if (!context || !context.auth){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+
+    const uid = context.auth.uid || null;
+    if (!uid){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    } 
+
+    admin.firestore().collection('liveAnswers').doc(data.eventId).delete().then().catch();
+    return admin.firestore().collection('liveQuestions').doc(data.eventId).delete().
+    then().
+    catch(
+        err =>{
+            console.log("Error deleting the live event information", err);
+            throw new functions.https.HttpsError('unknown', "Unable to delete the live Event Questions")
+        }
+    );
+    // admin.firestore().collection().doc().withConverter()
+})
 
 exports.registerUserForEvent = functions.https.onCall((data, context) => {
 
@@ -223,7 +244,7 @@ exports.registerUserForEvent = functions.https.onCall((data, context) => {
         throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
     }
 
-    admin.firestore().collection('events').doc(data.eventId).get()
+    return admin.firestore().collection('events').doc(data.eventId).get()
     .then(event => {
         if (!event){
             throw new functions.https.HttpsError('unknown', "Event with the name does not exist")
