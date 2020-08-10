@@ -75,7 +75,6 @@ exports.revealAnswer = functions.https.onCall((data, context) => {
         admin.firestore().collection('liveAnswers')
         .doc(data.eventId).
         set({...answer.data()}, {merge: true})
-        // update(question.data())
         .then((updateAnswer:any) => {
             console.log("Updated the Answer", updateAnswer.data());
         }).catch(
@@ -111,7 +110,7 @@ exports.pushNextQuestion = functions.https.onCall((data, context) => {
         if(question){
             admin.firestore().collection('liveQuestions')
             .doc(data.eventId).
-            update(question.data())
+            set(question.data(), {merge: true})
             .then((updateQuestion:any) => {
                 console.log("Updated the question", updateQuestion.data());
                 return {}
@@ -144,9 +143,9 @@ exports.updateEventStatus = functions.https.onCall((data, context) => {
     .then((event:any) => {
         if (event.data().creator === uid){
             console.log();
-            return admin.firestore().collection('events').doc(data.eventId).update({
+            return admin.firestore().collection('events').doc(data.eventId).set({
                 eventStatus: data.eventStatus
-             })
+             }, { merge: true})
              .then( (result) => result)
              .catch( err => {
                  console.error("Unable to update the event status", err);
@@ -358,11 +357,11 @@ app.post('/event/:id/question/:number', (req, res) => {
         const {question, id, options}: any = snap.data();
         admin.firestore()
         .doc('liveQuestions/' + eventId)
-        .update({
+        .set({
             question: question,
             id: id,
             options: options
-        })
+        }, {merge: true})
         .then(() => res.send({
             success: true
         }))
