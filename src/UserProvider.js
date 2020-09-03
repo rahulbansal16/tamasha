@@ -9,8 +9,10 @@ const initialState = {
   submission: {
     qid: undefined,
     option: undefined,
-    submitted: false
-  }
+    submitted: false,
+    percent: 100
+  },
+  resetTimer: true
 };
 
 const UserProvider = ({children}) => {

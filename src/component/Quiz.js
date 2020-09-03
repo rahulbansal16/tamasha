@@ -5,11 +5,12 @@ import AppLoader from './AppLoader';
 import Question from './Question';
 import Timer from './Timer';
 import {UserContext} from '../UserProvider';
-import { ACTIONS } from '../reducer';
+import {connect} from "react-redux";
+import {submitAnswer, updateQuestion, flashAnswer} from '../redux/actions';
 
 
 class Quiz extends React.Component {
-    static contextType = UserContext
+    // static contextType = UserContext
 
     state = {
         question:{  
@@ -23,18 +24,12 @@ class Quiz extends React.Component {
     }
     // Error creating your option and lets see what can be done from the user end
     postTheAnswer = (option) => {
-        const[state, dispatch] = this.context;
-        dispatch({
-            payload:{ submission: {
-                qid: this.state.question.questionId,
-                option: option,
-                submitted: true
-            }},
-            type: ACTIONS.SUBMIT_ANSWER
+        submitAnswer({
+            qid: this.props.question.questionId,
+            optionSubmitted: option
         });
-        console.log("Posting the options for the question", option);
-        this.setState({disabled: true});
-        // Add the code to make sure that 
+        console.log("Submitted the Answer");
+        // TODO: Add a link to API Call
     }
 
     componentDidMount = async() => {
@@ -52,10 +47,14 @@ class Quiz extends React.Component {
         let answer = db.collection('liveAnswers').doc(this.props.event);
         answer.onSnapshot( docSnapshot => {
             console.log("The new snapshot is", docSnapshot);
-            if ( true || docSnapshot.data().questionId === this.state.questionId){
-                this.setState({
-                    ...docSnapshot.data(),
-                    });
+            if ( docSnapshot === undefined || docSnapshot.data() === undefined || Object.entries(docSnapshot.data()).length === 0){
+                return
+            }
+            if ( true || docSnapshot.data().questionId === this.props.question.questionId){
+                flashAnswer(docSnapshot.data());
+                // this.setState({
+                    // ...docSnapshot.data(),
+                    // });
             }
         }, err => {
             console.error("Failed in fetching the answer", err);
@@ -65,14 +64,15 @@ class Quiz extends React.Component {
     registerToLiveQuestion = () => {
         let question = db.collection('liveQuestions').doc(this.props.event);
         question.onSnapshot( docSnapshot => {
-            if (Object.entries(docSnapshot.data()).length !== 0){
-                this.setState({
-                        question: docSnapshot.data(),
-                        disabled:false,
-                        isLoading:false,
-                        answer: undefined
-                })
+            if ( docSnapshot === undefined || docSnapshot.data() === undefined || Object.entries(docSnapshot.data()).length === 0){
+                return
             }
+            updateQuestion(
+                docSnapshot.data()
+            );
+            this.setState({
+                isLoading: false
+            })
         }, err => {
             console.log("Failed in fetching the question ", err);
         });
@@ -89,11 +89,11 @@ class Quiz extends React.Component {
         return (
             <>  
                 <Timer percent={100} onComplete={this.disableSubmission}/>
-                <Question question = {this.state.question} 
-                    disabled = {this.state.disabled}
-                    answer = {this.state.answer}
+                <Question question = {this.props.question} 
+                    disabled = {this.props.isAnswerSubmitted || this.props.isTimeout}
+                    answer = {this.props.answer}
                     onClick = {this.postTheAnswer}
-                    questionId = {this.state.questionId}
+                    questionId = {this.props.qid}
                 />
             </>
         )
@@ -109,5 +109,33 @@ class Quiz extends React.Component {
         );
     }
 }
+const mapStateToProps = state => {
+    const {
+        timerDisabled,
+        isAnswerSubmitted,
+        optionSubmitted,
+        qid,
+        qText,
+        options,
+        resetTimer,
+        isTimeout
+    } = state.quiz;
+    return {
+        question: {
+            question: qText,
+            options: options,
+            questionId: qid
+        },
+        timerDisabled,
+        isAnswerSubmitted,
+        optionSubmitted,
+        resetTimer,
+        isTimeout,
+        qid
+    };
+}
 
-export default withRouter(Quiz);
+export default connect(
+    mapStateToProps,
+    {submitAnswer, updateQuestion, flashAnswer}
+)(withRouter(Quiz));

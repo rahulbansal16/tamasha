@@ -1,5 +1,6 @@
 .App {
   /* max-width: 360px; */
+  color:#5a2be9;
 }
 
 /* .eventContainer{
@@ -43,17 +44,29 @@
   animation-fill-mode: both;
 }
 
-.blink {
+/* .blink {
   animation: blinker 0.75s linear infinite;
-}
+} */
 
-@keyframes blinker {
-  50% {
-    opacity:50;
-    color: green !important;
+.blink {
+  background-color: green !important;
+  /* animation: blink-animation 0.75s steps(5, start) infinite; */
+  /* -webkit-animation: blink-animation 0.75s steps(5, start) infinite; */
+}
+@keyframes blink-animation {
+  to {
+    opacity: 50%;
+    color: red !important;
+    background-color: green !important;
   }
 }
-
+@-webkit-keyframes blink-animation {
+  to {
+    opacity: 50%;
+    color: red !important;
+    background-color: green !important;
+  }
+}
 
 img {
   max-width: 100%;
@@ -67,6 +80,25 @@ iframe {
   height: 300px !important;
   width:300px !important;
 }
+
+/* @-webkit-keyframes blinker {
+  50% {
+    opacity:50 !important;
+    background-color: green !important;
+    color: green !important;
+  }
+}
+
+@keyframes blinker {
+  50% {
+    opacity:50 !important;
+    background-color: green !important;
+    color: green !important;
+  }
+  100% {
+    color: pink !important;
+  }
+} */
 /* @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;

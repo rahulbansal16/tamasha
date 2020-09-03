@@ -70,8 +70,10 @@ class EventPage extends React.Component {
         if (this.state.paymentStatus === PaymentStatus.PENDING){
             console.log("Redirecting to the payment page");
         }
-        if (this.state.paymentStatus === PaymentStatus.RECEIVED &&
-            this.state.eventStatus === EventStatus.LIVE){
+        if (true
+            // this.state.paymentStatus === PaymentStatus.RECEIVED &&
+            // this.state.eventStatus === EventStatus.LIVE
+            ){
            console.log("Redirecting to the live Event page")
             this.props.history.push({
                 pathname: this.props.location.pathname + '/live',

@@ -1,7 +1,8 @@
 export const EventStatus = {
     LIVE: 'live',
     UPCOMING: 'upcoming',
-    CANCELLED: 'cancelled'
+    CANCELLED: 'cancelled',
+    ENDED: 'ended'
 };
 
 export const PaymentStatus = {

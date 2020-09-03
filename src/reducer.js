@@ -4,6 +4,9 @@ export const ACTIONS = {
     SUBMIT_ANSWER: 'submit_answer',
     RESET_ANSWER: 'reset_answer',
     UPDATE_AUTH: 'update_auth',
+    UPDATE_QUESTION: 'update_question',
+    RESET_TIMER: 'reset_timer',
+    UNSET_TIMER: 'unset_timer'
 };
 
 const Reducer = (state, action) => {
@@ -14,6 +17,12 @@ const Reducer = (state, action) => {
                 ...state,
                 ...action.payload
             };
+        case ACTIONS.UPDATE_QUESTION:
+            console.log("Updating the question", action.payload);
+            return {
+                ...state,
+                ...action.payload
+            }
         case ACTIONS.RESET_ANSWER:
             return {
                 ...state,
@@ -24,6 +33,16 @@ const Reducer = (state, action) => {
                 ...state,
                 user: action.payload.user
             };
+        case ACTIONS.RESET_TIMER:
+            return {
+                ...state,
+                resetTimer: true
+            }
+        case ACTIONS.UNSET_TIMER:
+            return {
+                ...state, 
+                resetTimer: false
+            }
         case 'SET_ERROR':
             return {
                 ...state,

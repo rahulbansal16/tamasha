@@ -5,6 +5,9 @@ import Login from './container/Login';
 import Navbar from './component/Navbar';
 import EventPage from './container/EventPage';
 import LiveEventPage from './container/LiveEventPage';
+import store from './redux/store'
+import { Provider } from 'react-redux'
+
 import {
   BrowserRouter as Router,
   Switch,
@@ -71,11 +74,13 @@ class App extends React.Component {
 
     render(){
       return (
-        <UserProvider>
-        {
-          this.application()
-        }
-        </UserProvider>
+        <Provider store = {store}>
+          {/* <UserProvider> */}
+          {
+            this.application()
+          }
+          {/* </UserProvider> */}
+        </Provider>
       );
     }
 }

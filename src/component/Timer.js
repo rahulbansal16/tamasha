@@ -1,10 +1,8 @@
 import React from 'react';
 import {Progress} from 'semantic-ui-react';
-import {UserContext} from '../UserProvider';
+import {connect} from "react-redux";
 
 class Timer extends React.Component {
-
-    static contextType = UserContext;
 
     ProgressBarStatus = {
         SUCCESS:'success',
@@ -24,6 +22,15 @@ class Timer extends React.Component {
         disabled: this.props.disabled || false,
     }
 
+    resetTimer = () => {
+        // this.setState({
+        //     timerDisabled: this.defaultTime,
+        //     lastNow: Date.now(),
+        //     percent: 100,
+        //     status: this.ProgressBarStatus.SUCCESS,
+        //     disabled: false
+        // })
+    }
     getStatus = (percent) => {
         percent = percent || 100;
         if ( percent >= 80 ) {
@@ -62,7 +69,7 @@ class Timer extends React.Component {
                 timerDisabled: (timeLeft/totalTime)*100 <= 0
             }}
         );
-        if(!this.context[0].submission.submitted)
+        if(!this.props.isAnswerSubmitted)
             this.setTimeoutMethod = setTimeout(this.decreaseTime , this.callbackInterval);
     }
 
@@ -70,8 +77,7 @@ class Timer extends React.Component {
         this.setState({
             status: this.getStatus(this.state.percent)
         });
-        console.log("The value of the context is",this.context[0].submission.submitted);
-        if (!this.context[0].submission.submitted)
+        if (!this.props.isAnswerSubmitted)
             this.setTimeoutMethod = setTimeout(this.decreaseTime , this.callbackInterval);
     }
 
@@ -83,8 +89,14 @@ class Timer extends React.Component {
     }
 
     render(){
-        // let timerDisabled = this.context[0].submission.submitted;
-        console.log("Rerendering the Timer", this.context[0].submission.submitted);
+        if ( this.props.resetTimer){
+            this.resetTimer();
+            // const[state, dispatch] = this.context;
+            // dispatch({
+            //     payload:{ resetTimer: false},
+            //     type: ACTIONS.UNSET_TIMER
+            // });
+        }
         return(
             <>
                 <Progress percent = {this.state.percent} 
@@ -99,4 +111,13 @@ class Timer extends React.Component {
     }
 };
 
-export default Timer;
+const mapStateToProps = state => {
+    const { isAnswerSubmitted, timerDisabled, resetTimer} = state.quiz;
+    return {
+        isAnswerSubmitted: isAnswerSubmitted,
+        timerDisabled: timerDisabled,
+        resetTimer: resetTimer
+    }
+}
+
+export default connect(mapStateToProps)(Timer);
