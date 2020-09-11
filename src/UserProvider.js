@@ -1,41 +1,51 @@
-import React, {createContext, useEffect, useReducer} from "react";
-import { auth} from "./firebase";
-import Reducer, {ACTIONS} from '../src/reducer';
+import React from "react";
+import {auth} from "./firebase";
+import {connect} from "react-redux";
+import {updateUserState} from './redux/actions';
 
-const initialState = {
-  user: undefined,
-  error: undefined,
-  disableTimer: false,
-  submission: {
-    qid: undefined,
-    option: undefined,
-    submitted: false,
-    percent: 100
-  },
-  resetTimer: true
-};
+// const initialState = {
+//   user: undefined,
+//   error: undefined,
+//   disableTimer: false,
+//   submission: {
+//     qid: undefined,
+//     option: undefined,
+//     submitted: false,
+//     percent: 100
+//   },
+//   resetTimer: true
+// };
 
-const UserProvider = ({children}) => {
-  const [state, dispatch] = useReducer(Reducer, initialState);
-  useEffect(() => {
+class UserProvider extends React.Component
+{
+  componentDidMount(){
+    const dispatch = this.props.updateAuth;
     async function updateUserState() {
       auth.onAuthStateChanged( async userAuth => {
-        dispatch({ payload: {user: userAuth}, type:ACTIONS.UPDATE_AUTH });
-        console.log("The user auth state changed", userAuth);
-        // This will give a rough user state
-        // That can be used by someone
-        // const user = await generateUserDocument(userAuth);
+        dispatch(userAuth)
       });
     }
     updateUserState();
-  },[]);
+  }
 
-    return (
-      <UserContext.Provider value={[state, dispatch]}>
-        {children}
-      </UserContext.Provider>
-    );
+    render(){
+        return (
+            <></>
+        );
+    }
 }
-export const UserContext = createContext(initialState);
-export const UserConsumer = UserContext.Consumer;
-export default UserProvider;
+
+const mapStateToProps = state => {
+  return {
+      user: state.user
+  }
+}
+
+const mapDispatchToProps = (dispatch) => ({
+  updateAuth: (userAuth) => dispatch(updateUserState(userAuth))
+})
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(UserProvider);
