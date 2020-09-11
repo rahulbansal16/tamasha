@@ -11,15 +11,13 @@ import { Provider } from 'react-redux'
 import {
   BrowserRouter as Router,
   Switch,
-  Route,
-  Link
+  Route
 } from "react-router-dom";
 import Home from './container/Home';
 import LogoutPage from './container/LogoutPage';
 import UserPage from './container/UserPage';
 import HostEventPage from './container/host/HostEventPage';
 import HostLiveEventPage from './container/host/HostLiveEventPage';
-import {functions} from './firebase';
 import EditHostEventPage from './container/host/EditHostEventPage';
 
 class App extends React.Component {
@@ -75,11 +73,10 @@ class App extends React.Component {
     render(){
       return (
         <Provider store = {store}>
-          {/* <UserProvider> */}
+          <UserProvider/>
           {
             this.application()
           }
-          {/* </UserProvider> */}
         </Provider>
       );
     }

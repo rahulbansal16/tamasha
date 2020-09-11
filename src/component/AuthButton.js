@@ -1,14 +1,13 @@
 import { Button, Icon } from "semantic-ui-react";
 import React from 'react';
-import {UserContext} from '../UserProvider';
 import {withRouter} from "react-router-dom";
-
+import {connect} from "react-redux";
+import {submitAnswer, updateQuestion, flashAnswer} from '../redux/actions';
 
 class AuthButton extends React.Component {
 
-    static contextType = UserContext;
     onClick = () => {
-        let user = this.context[0].user;
+        let user = this.props.user;
         if (!user){
             this.props.history.push({
                 pathname:"/login",
@@ -20,7 +19,7 @@ class AuthButton extends React.Component {
     }
 
     render() {
-        let user = this.context[0].user;
+        let user = this.props.user;
         return (
             <Button primary onClick = {this.onClick}>
                 <Icon name="shop"></Icon>
@@ -30,4 +29,13 @@ class AuthButton extends React.Component {
     }
 }
 
-export default withRouter(AuthButton);
+const mapStateToProps = state => {
+    return {
+        user: state.user
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    {submitAnswer, updateQuestion, flashAnswer}
+)(withRouter(AuthButton));
