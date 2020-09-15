@@ -45,12 +45,33 @@ class ChatComponent extends React.Component {
         this.fileInput.current.click();
         console.log("Hi lets see what can be done");
     }
+    
+    fileChange = (event) => {
+        console.log(event.target.files)
+        this.readImage(event.target.files[0])
+    }
+
+    readImage = (file) => {
+        if (file.type && file.type.indexOf('image') === -1) {
+          console.log('File is not an image.', file.type, file);
+          return;
+        }
+        const reader = new FileReader();
+        reader.addEventListener('load', (event) => {
+        //   img.src = event.target.result;
+        });
+        reader.readAsDataURL(file);
+      }
+
+
 
     render(){
         return(
             <div className='chatComponent' style = {style}>
                 <input type="file" accept="image/*" 
                 ref = {this.fileInput}
+                onChange = {this.fileChange}
+                // onClick = {}
                 style = {{display:'none'}}
                 capture="environment"
                 ></input>
