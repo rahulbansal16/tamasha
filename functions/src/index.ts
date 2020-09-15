@@ -164,6 +164,31 @@ exports.updateEventStatus = functions.https.onCall((data, context) => {
     
 })
 
+exports.submitUserPayment = functions.https.onCall((data, context) => {
+    if (!context || !context.auth){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+    const uid = context.auth.uid || null;
+    const eventId = data.eventId || null;
+    if (!uid){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    } 
+    console.log("Updaing the user payment status");
+    return admin.firestore().collection('eventRegistration')
+    .doc(eventId).collection('users').doc(uid).set({
+        paymentStatus: 'received'
+    },{merge: true}).then( ()=> {
+        return {
+            message:'Payment done successfully'
+        }
+    }).catch(() => {
+        return {
+            message: 'Error in processing the payments'
+        }
+    })
+
+})
+
 exports.fetchUserPayment = functions.https.onCall((data, context) => {
     if (!context || !context.auth){
         throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
@@ -175,34 +200,40 @@ exports.fetchUserPayment = functions.https.onCall((data, context) => {
     console.log("Checking the fetchUserPayment api");
     return admin.firestore().collection('eventRegistration')
     .doc(data.eventId)
+    .collection('users')
+    .doc(uid)
     .get()
     .then( snap => {
         if (!snap){
             throw new functions.https.HttpsError('unknown', "Event with the name does not exist")
         }
         console.log("Fetched the Event Info about the required event", snap);
-        const paymentStatuses: any = (snap.data()|| {paymentStatus:[] }).paymentStatus;
-        console.log("Fetching the payment status for the event", paymentStatuses);
-        const paymentIndex = paymentStatuses.indexOf(uid);
-        console.log("Fetching the uid in the payment Status ", paymentIndex);
-        if (paymentIndex !== -1){
-            console.log("Returing the value", {
-                uid: uid,
-                paymentStatus: PaymentStatus.RECEIVED
-            })
-            return {
-                uid: uid,
-                paymentStatus: PaymentStatus.RECEIVED
-            }
-        } else {
-            console.log("Returning the value", {
-                uid: uid,
-                paymentStatus: PaymentStatus.PENDING
-            })
-            return {
-                paymentStatus: PaymentStatus.PENDING,
-                uid: uid
-            }
+        // const paymentStatuses: any = (snap.data()|| {paymentStatus:[] }).paymentStatus;
+        // console.log("Fetching the payment status for the event", paymentStatuses);
+        // const paymentIndex = paymentStatuses.indexOf(uid);
+        // console.log("Fetching the uid in the payment Status ", paymentIndex);
+        // if (paymentIndex !== -1){
+        //     console.log("Returing the value", {
+        //         uid: uid,
+        //         paymentStatus: PaymentStatus.RECEIVED
+        //     })
+        //     return {
+        //         uid: uid,
+        //         paymentStatus: PaymentStatus.RECEIVED
+        //     }
+        // } else {
+        //     console.log("Returning the value", {
+        //         uid: uid,
+        //         paymentStatus: PaymentStatus.PENDING
+        //     })
+        //     return {
+        //         paymentStatus: PaymentStatus.PENDING,
+        //         uid: uid
+        //     }
+        // }
+        return {
+            uid: uid,
+            ...snap.data()
         }
     })
     .catch(err => {
@@ -275,6 +306,32 @@ exports.registerUserForEvent = functions.https.onCall((data, context) => {
     // const picture = context.auth.token.picture || null;
     // const email = context.auth.token.email || null;
 });
+
+exports.submitComment = functions.https.onCall((data, context) => {
+
+    if (!context || !context.auth){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+
+    const uid = context.auth.uid || null;
+    if (!uid){
+        throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
+    }
+
+    return admin.firestore().collection('comments').doc(data.eventId).collection('comments').add({
+        text: data.text,
+        author: data.author,
+        image: data.image
+    }).
+    then().
+    catch(
+        err =>{
+            console.log("Error deleting the live event information", err);
+            throw new functions.https.HttpsError('unknown', "Unable to delete the live Event Questions")
+        }
+    );
+
+})
 
 app.get('/contacts', (req, res) => {
     firebaseHelper.firestore
@@ -378,6 +435,10 @@ app.post('/event/:id/question/:number', (req, res) => {
         })
     })
 });
+
+app.post('/event/:eventId/comment', (req, res) => {
+    // 
+})
 
 app.get('/event/:eventId/question/:questionID/submit', (req, res) => {
 
