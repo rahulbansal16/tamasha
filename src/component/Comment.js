@@ -1,12 +1,12 @@
 import React from 'react'
-import { Comment } from 'semantic-ui-react'
+import { Comment, Image } from 'semantic-ui-react'
 
   // <Comment.Group>
     {/* <Header as='h3' dividing>
       Comments
     </Header> */}
 
-export const LiveComment = ({author, text}) => (
+export const LiveComment = ({author, text, imgSrc}) => (
 
   <Comment.Group>
     <Comment>
@@ -23,6 +23,10 @@ export const LiveComment = ({author, text}) => (
           <div>Today at 5:42PM</div>
         </Comment.Metadata>
         <Comment.Text>{text}</Comment.Text>
+        { imgSrc? 
+          <Image size ="huge" src = {imgSrc} ></Image>
+          :<></>
+        }
         <Comment.Actions>
           <Comment.Action>Like</Comment.Action>
         </Comment.Actions>
