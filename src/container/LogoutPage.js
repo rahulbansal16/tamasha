@@ -2,6 +2,8 @@ import React from 'react';
 import {Card, Container, Loader} from 'semantic-ui-react';
 import {withRouter} from "react-router-dom";
 import {auth} from '../firebase';
+import {updateUserState} from '../redux/actions';
+import {connect} from "react-redux";
 
 // TODO:Add the Logout Page to the User Menu also
 class LogoutPage extends React.Component {
@@ -15,7 +17,11 @@ class LogoutPage extends React.Component {
     }
 
     componentDidMount = () => {
-        auth.signOut().then( () => this.redirectToHome() ).catch(() => {
+        const dispatch = this.props.updateAuth;
+        auth.signOut().then( () => {
+            this.redirectToHome()
+            dispatch();
+        } ).catch(() => {
             console.log('Error Logging you out');
         })
     };
@@ -32,4 +38,9 @@ class LogoutPage extends React.Component {
         );
     }
 }
-export default withRouter(LogoutPage);
+
+const mapDispatchToProps = (dispatch) => ({
+    updateAuth: (userAuth) => dispatch(updateUserState(userAuth))
+})
+
+export default connect(null, mapDispatchToProps)(withRouter(LogoutPage));

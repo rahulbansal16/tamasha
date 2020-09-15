@@ -124,5 +124,9 @@ export const getEventsFromFireStore = async () => {
   }
 }
 
+export const getLatestComments = async (eventId) => {
+  // db.
+}
+
 export const getEventsById = async (id) => {
 }

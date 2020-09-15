@@ -2,12 +2,13 @@ import React from 'react';
 import './App.css';
 import UserProvider from './UserProvider';
 import Login from './container/Login';
+import Success from './component/Success';
 import Navbar from './component/Navbar';
 import EventPage from './container/EventPage';
 import LiveEventPage from './container/LiveEventPage';
 import store from './redux/store'
 import { Provider } from 'react-redux'
-
+// https://imgbb.com/ URL For uploading image and getting link to it
 import {
   BrowserRouter as Router,
   Switch,
@@ -39,45 +40,48 @@ class App extends React.Component {
     application = () => {
         return (
           <Router>
-          <div className="App">
             <Navbar/>
-            <Switch>
-              <Route exact path="/" 
-                render = {(props) => <Home {...props} />} />
-              <Route path="/home" 
-                render = {(props) => <Home {...props} />} />      
-              <Route path="/login"
-                render = {(props) => <Login {...props} authenticated = {this.state.authenticated} />}/>
-{/* TODO: Make the host endpoint only accessible to the creator of the event  */}
-              <Route path = "/event/host/:id/edit"
-                render = {(props) => <EditHostEventPage {...props}/>} />   
-              <Route path = "/event/host/:id/live"
-                render = {(props) => <HostLiveEventPage {...props}/>} /> 
-              <Route path = "/event/host/:id"
-                render = {(props) => <HostEventPage {...props}/>} />    
-                             
-              <Route path = "/event/:id/live"
-                render = {(props) => <LiveEventPage {...props}/>} />   
-              <Route path = "/event/:id"
-                render = {(props) => <EventPage {...props}/>} />
-              <Route path = "/logout"
-                render = {(props) =><LogoutPage/>} />
-              <Route path = "/user"
-                render = {(props) =><UserPage/>} />
-            </Switch>
-          </div>
-        </Router>
+            {/* <div className="mainApp"> */}
+              <Switch>
+                <Route exact path="/" 
+                  render = {(props) => <Home {...props} />} />
+                <Route path="/home" 
+                  render = {(props) => <Home {...props} />} />      
+                <Route path="/login"
+                  render = {(props) => <Login {...props} authenticated = {this.state.authenticated} />}/>
+                <Route path="/cb" render = { props => <Success {...props}/> }/>
+  {/* TODO: Make the host endpoint only accessible to the creator of the event  */}
+                <Route path = "/event/host/:id/edit"
+                  render = {(props) => <EditHostEventPage {...props}/>} />   
+                <Route path = "/event/host/:id/live"
+                  render = {(props) => <HostLiveEventPage {...props}/>} /> 
+                <Route path = "/event/host/:id"
+                  render = {(props) => <HostEventPage {...props}/>} />    
+                              
+                <Route path = "/event/:id/live"
+                  render = {(props) => <LiveEventPage {...props}/>} />   
+                <Route path = "/event/:id"
+                  render = {(props) => <EventPage {...props}/>} />
+                <Route path = "/logout"
+                  render = {(props) =><LogoutPage/>} />
+                <Route path = "/user"
+                  render = {(props) =><UserPage/>} />
+              </Switch>
+            {/* </div> */}
+          </Router>
       );
     }
 
     render(){
       return (
-        <Provider store = {store}>
-          <UserProvider/>
-          {
-            this.application()
-          }
-        </Provider>
+        <div className="App">
+          <Provider store = {store}>
+            <UserProvider/>
+            {
+              this.application()
+            }
+          </Provider>
+        </div>
       );
     }
 }

@@ -1,4 +1,4 @@
-import {SUBMIT_ANSWER, UPDATE_QUESTION, RESET_TIMER, FLASH_ANSWER, UPDATE_AUTH} from './actionType';
+import {SUBMIT_ANSWER, UPDATE_QUESTION, RESET_TIMER, FLASH_ANSWER, UPDATE_AUTH, UPDATE_EVENT} from './actionType';
 
 export const submitAnswer = ({qid, optionSubmitted}) => ({
     type: SUBMIT_ANSWER,
@@ -37,4 +37,9 @@ export const updateQuestion = ( {questionId, options, question}) => ({
 export const updateUserState = (user) => ({
     type: UPDATE_AUTH,
     payload: user
+})
+
+export const updateEvent = (eventId) => ({
+    type: UPDATE_EVENT,
+    payload: eventId
 })

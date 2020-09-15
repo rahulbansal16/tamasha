@@ -33,10 +33,13 @@ class Event extends React.Component {
     //     });
     // }
 
-    cardExampleCard = ({name, id, description}) => (
+    cardExampleCard = ({name, id, description, imgSrc}) => (
       // <Transition visible animation="fly up" duration={50000}>
         <Card className="fadeInUp" fluid as ='a' onClick = { () => this.props.onCardClick(this.props.card.id)}>
-          <LazyImage src='https://react.semantic-ui.com/images/avatar/large/matthew.png' wrapped ui={false} 
+          <LazyImage src={imgSrc}
+          
+          // 'https://react.semantic-ui.com/images/avatar/large/matthew.png'
+           wrapped ui={false} 
           size = "medium"/>
           <Card.Content>
             <Card.Header>{name}</Card.Header>

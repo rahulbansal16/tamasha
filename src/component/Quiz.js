@@ -4,13 +4,11 @@ import {db} from "../firebase";
 import AppLoader from './AppLoader';
 import Question from './Question';
 import Timer from './Timer';
-import {UserContext} from '../UserProvider';
 import {connect} from "react-redux";
 import {submitAnswer, updateQuestion, flashAnswer} from '../redux/actions';
 
 
 class Quiz extends React.Component {
-    // static contextType = UserContext
 
     state = {
         question:{  

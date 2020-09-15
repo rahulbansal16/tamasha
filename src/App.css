@@ -1,8 +1,32 @@
 .App {
-  /* max-width: 360px; */
-  color:#5a2be9;
+  max-width: 360px;
+  /* color:#5a2be9; */
 }
 
+#root {
+  display: flex;
+  justify-content: center;
+}
+
+.stackedNavbar {
+  width: 360px;
+  height: 100%;
+  border: 0px !important;
+  position: absolute;
+  transform: translate(-3000px, 0);
+  transition: transform 0.3s ease;
+  /* // backgroundColor: 'white; */
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+}
+
+@media screen and (min-width: 600px){
+  /* Add the code for displaying the Menu item to the left of the app  */
+  .stackedNavbar{
+    transform: translate(-300px, 0);
+  }
+}
 /* .eventContainer{
   display:inline-block !important;
   width: 300px;
@@ -76,7 +100,7 @@ iframe {
 }
 
 .event {
-  background-color:rgb(247, 246, 243) !important;
+  /* background-color:rgb(247, 246, 243) !important; */
   height: 300px !important;
   width:300px !important;
 }
@@ -103,21 +127,6 @@ iframe {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
 }
 
 @keyframes App-logo-spin {

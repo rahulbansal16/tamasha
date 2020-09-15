@@ -5,3 +5,6 @@ export const UPDATE_QUESTION= 'update_question';
 export const RESET_TIMER= 'reset_timer';
 export const UNSET_TIMER= 'unset_timer'
 export const FLASH_ANSWER = 'flash_answer';
+export const LOGOUT_USER = 'logout_user';
+export const LOGIN_USER = 'login_user';
+export const UPDATE_EVENT = 'update_event';
