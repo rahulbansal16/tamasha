@@ -5,16 +5,42 @@ import * as express from 'express';
 import * as bodyParser from "body-parser";
 import { user } from 'firebase-functions/lib/providers/auth';
 import {fetchUserIdFromRequest} from './util/util';
+// import * as cors from 'cors';
+const cors = require('cors')({origin: true});
+
+
+import * as uuid from 'uuid-random';
+// const uuidv4 = require('uuid/v4'); //to give unique name to each file
+const {
+    fileParser
+} = require('express-multipart-file-parser'); 
 
 admin.initializeApp(functions.config().firebase);
 const db = admin.firestore();
 const app = express();
-const main = express();
+// const main = express();
+
+// Automatically allow cross-origin requests
+app.use(cors);
+
+
+app.use(fileParser({
+    rawBodyOptions: {
+        limit: '15mb',  //file size limit
+    },
+    busboyOptions: {
+        limits: {
+            fields: 20   //Number text fields allowed 
+        }
+    },
+}))
+
+
 
 const contactsCollection = 'contacts';
-main.use('/', app);
-main.use(bodyParser.json());
-main.use(bodyParser.urlencoded({ extended: false }));
+// main.use('/', app);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // webApi is your functions name, and you will pass main as 
 // a parameter
@@ -30,7 +56,11 @@ export const PaymentStatus = {
     RECEIVED: 'received'
 }
 
-export const webApi = functions.https.onRequest(main);
+export const webApi = functions.https.onRequest(app);
+
+const getTimeEpoch = () => {
+    return new Date().getTime().toString();
+}
 
 exports.addUserEntry = functions.auth.user().onCreate( (userData) => {
     admin.firestore().collection('users').add(userData)
@@ -317,20 +347,122 @@ exports.submitComment = functions.https.onCall((data, context) => {
     if (!uid){
         throw new functions.https.HttpsError('unauthenticated', "Please sign in to continue")
     }
+    console.log( getTimeEpoch());
 
-    return admin.firestore().collection('comments').doc(data.eventId).collection('comments').add({
+    return admin.firestore().collection('comments').doc(data.eventId).collection('comments').doc( getTimeEpoch()).set({
         text: data.text,
         author: data.author,
         image: data.image
-    }).
+    }, {merge: true}).
     then().
     catch(
         err =>{
-            console.log("Error deleting the live event information", err);
-            throw new functions.https.HttpsError('unknown', "Unable to delete the live Event Questions")
+            console.log("Error adding the comment", err);
+            throw new functions.https.HttpsError('unknown', "Error adding the comment")
         }
     );
 
+})
+
+const uploadImageToStorage = (file: any, uploadName: any) => {
+    const bucket = admin.storage().bucket();
+    let prom = new Promise((resolve, reject) => {
+        if (!file) {
+            reject('No image file');
+        }
+        let newFileName = uploadName;
+
+        let fileUpload = bucket.file(newFileName);
+        const blobStream = fileUpload.createWriteStream({
+            metadata: {
+                contentType: file.mimetype
+            }
+        });
+
+        blobStream.on('error', (error) => {
+            reject('Something is wrong! Unable to upload at the moment.');
+        });
+
+        blobStream.on('finish', () => {
+            const url = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`; //image url from firebase server
+            console.log(url)
+            resolve(url);
+        });
+
+        blobStream.end(file.buffer);
+    });
+    return prom;
+}
+
+app.options('/post', function (req:any, res:any){
+    res.set("Access-Control-Allow-Origin", "*"); // you can also whitelist a specific domain like "http://127.0.0.1:4000"
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+    res.status(200).send();
+})
+
+app.post('/post', function (req: any, res) {
+    // const {
+        //     fieldname,
+        //     originalname,
+        //     encoding,
+        //     mimetype,
+        //     buffer,
+        // } = req.files[0]
+    console.log('In the post request of the ap')
+        res.set("Access-Control-Allow-Origin", "*"); // you can also whitelist a specific domain like "http://127.0.0.1:4000"
+        res.set("Access-Control-Allow-Headers", "Content-Type");
+    var uploadName = uuid() + '.png';
+    console.log('After the uploadName generation');
+    // I need to fetch the uid at this point of time so that I can tell which user did that
+    // It is going to be an easy task
+    console.log('This is the log because of the eid',  getTimeEpoch())
+ 
+    // admin.firestore().collection('files').doc(uploadName).set({
+    //     fileName: uploadName,
+    //     uploadDate: new Date(),
+    //     text: req.body.text
+    // })
+    var addFilePromise: any;
+    if(req.files[0]){
+        addFilePromise = uploadImageToStorage(req.files[0], uploadName);
+    
+     } else {
+         return res.status(200);
+     }
+
+     return addFilePromise.then( () =>
+        admin.firestore().collection('comments').doc(req.body.eventId).collection('comments').doc( getTimeEpoch()).set({
+            text: req.body.text,
+            author: req.body.author,
+            imageSrc: uploadName
+        }, {merge: true}).then( () => res.status(200).send(
+            {
+                success:'File upload successful' 
+            }) )
+     ).catch(
+        () => 
+            res.status(500).send({
+             error:'Unable to upload file. Please try again' 
+           })
+    )
+    // var addEntryPromise = 
+    // admin.firestore().collection('comments').doc(req.body.eventId).collection('comments').doc( getTimeEpoch()).set({
+    //     text: req.body.text,
+    //     author: req.body.author,
+    //     imageSrc: uploadName
+    // }, {merge: true});
+    // return Promise.all([addEntryPromise, addFilePromise]).then(
+    //     () => {
+    //         return res.status(200).send({
+    //             success:'File upload successful'
+    //         })
+    //     }
+    // ).catch( 
+    //     () => {
+    //        return res.status(500).send({
+    //         error:'Unable to upload file. Please try again' 
+    //       })
+    // })
 })
 
 app.get('/contacts', (req, res) => {
