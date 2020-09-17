@@ -1,10 +1,7 @@
 import React from 'react'
 import { Comment, Image } from 'semantic-ui-react'
+import {getFirebaseImageURL} from '../util/firebseUtil'
 
-  // <Comment.Group>
-    {/* <Header as='h3' dividing>
-      Comments
-    </Header> */}
 
 export const LiveComment = ({author, text, imgSrc}) => (
 
@@ -24,7 +21,12 @@ export const LiveComment = ({author, text, imgSrc}) => (
         </Comment.Metadata>
         <Comment.Text>{text}</Comment.Text>
         { imgSrc? 
-          <Image size ="huge" src = {imgSrc} ></Image>
+          <Image size ="huge" src = 
+          
+          {getFirebaseImageURL(imgSrc)}
+          
+          // {imgSrc} 
+          ></Image>
           :<></>
         }
         <Comment.Actions>

@@ -55,7 +55,8 @@ class LiveEventPage extends React.Component {
 
     populateComments = () => {
         return this.state.comments.map( comment => 
-        <LiveComment key = {comment.id} text={comment.text} author = {comment.author}></LiveComment>)
+        <LiveComment key = {comment.id} text={comment.text} author = {comment.author}
+        imgSrc = {comment.imageSrc}></LiveComment>)
     }
 
     componentDidMount = async () => {

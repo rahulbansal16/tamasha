@@ -1,7 +1,7 @@
 import React from 'react';
-import {Button, Icon, Item, Input} from 'semantic-ui-react';
+import {Button, Icon, Input} from 'semantic-ui-react';
+import { BASE_URL_API } from '../Const';
 import {db} from '../firebase';
-
 
 const style = {
     abc:'',
@@ -26,8 +26,10 @@ class ChatComponent extends React.Component {
         const text = this.textInput.current.inputRef.current.value;
         if (  text === null || text === "")
             return;
+            // I will be collecting the names from the user somehow
+            // Lets see what can de
         const result = await db.collection('comments').doc(this.props.id).collection('comments').add({
-            author: 'Random name ',
+            author: 'Random name',
             text: text,
         })
         // uncomment it to add the api
@@ -40,7 +42,7 @@ class ChatComponent extends React.Component {
         console.log('The result is', result);
     }
 
-    postImage = () => {
+    uploadImage = () => {
         console.log("Post Iamge");
         this.fileInput.current.click();
         console.log("Hi lets see what can be done");
@@ -48,7 +50,12 @@ class ChatComponent extends React.Component {
     
     fileChange = (event) => {
         console.log(event.target.files)
-        this.readImage(event.target.files[0])
+        this.postImage(event.target.files[0],'', 'Random Name', this.props.id)
+        // readImage(event.target.files[0], this.postImage).then(
+        //     () => console.log("Yes!! Uploaded the file")
+        // ).catch( err => 
+        //     console.log('Error in uploading the image', err)
+        // )
     }
 
     readImage = (file) => {
@@ -62,6 +69,21 @@ class ChatComponent extends React.Component {
         });
         reader.readAsDataURL(file);
       }
+
+
+    postImage = (image, comment, author, eventId) => {
+        const formData = new FormData();
+        formData.append('eventId', eventId)
+        formData.append("text", comment );
+        formData.append("author",  author || 'Random Name'); 
+        formData.append("uploaded_file", image, "noteImage");
+  
+        return fetch(BASE_URL_API + '/post',{
+          method: 'POST',
+          body: formData
+        }).then( s => console.log(s))
+        .catch(e => console.log(e))
+    }
 
 
 
@@ -78,7 +100,7 @@ class ChatComponent extends React.Component {
                 <Input 
                 ref={this.textInput} style={{height: '90%', width:'72%'}}
                     action={
-                        <Button onClick={this.postImage}><Icon name = "attach"></Icon></Button>
+                        <Button onClick={this.uploadImage}><Icon name = "attach"></Icon></Button>
                       }
                       actionPosition='left'
                 />
