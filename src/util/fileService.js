@@ -9,5 +9,15 @@ export const readImage = (file, cb) => {
         return cb(event.target.result)
     });
     reader.readAsArrayBuffer(file);
+}
+
+export const fileUploadApiCall = async (data, URL) => {
+  const formData = new FormData();
+  for ( const key in data){
+    formData.append(key, data[key])
   }
-  
+    return fetch( URL ,{
+      method: 'POST',
+      body: formData
+    });
+}

@@ -2,6 +2,8 @@ import React from 'react';
 import {Button, Icon, Input} from 'semantic-ui-react';
 import { BASE_URL_API } from '../Const';
 import {db} from '../firebase';
+import ImageUpload from './ImageUpload';
+import {fileUploadApiCall} from '../util/fileService'
 
 const style = {
     abc:'',
@@ -42,47 +44,54 @@ class ChatComponent extends React.Component {
         console.log('The result is', result);
     }
 
-    uploadImage = () => {
-        console.log("Post Iamge");
-        this.fileInput.current.click();
-        console.log("Hi lets see what can be done");
-    }
+    // uploadImage = () => {
+    //     console.log("Post Iamge");
+    //     this.fileInput.current.click();
+    //     console.log("Hi lets see what can be done");
+    // }
     
-    fileChange = (event) => {
-        console.log(event.target.files)
-        this.postImage(event.target.files[0],'', 'Random Name', this.props.id)
-        // readImage(event.target.files[0], this.postImage).then(
-        //     () => console.log("Yes!! Uploaded the file")
-        // ).catch( err => 
-        //     console.log('Error in uploading the image', err)
-        // )
-    }
+    // fileChange = (event) => {
+    //     console.log(event.target.files)
+    //     this.postImage(event.target.files[0],'', 'Random Name', this.props.id)
+    //     // readImage(event.target.files[0], this.postImage).then(
+    //     //     () => console.log("Yes!! Uploaded the file")
+    //     // ).catch( err => 
+    //     //     console.log('Error in uploading the image', err)
+    //     // )
+    // }
 
-    readImage = (file) => {
-        if (file.type && file.type.indexOf('image') === -1) {
-          console.log('File is not an image.', file.type, file);
-          return;
-        }
-        const reader = new FileReader();
-        reader.addEventListener('load', (event) => {
-        //   img.src = event.target.result;
-        });
-        reader.readAsDataURL(file);
-      }
+    // readImage = (file) => {
+    //     if (file.type && file.type.indexOf('image') === -1) {
+    //       console.log('File is not an image.', file.type, file);
+    //       return;
+    //     }
+    //     const reader = new FileReader();
+    //     reader.addEventListener('load', (event) => {
+    //     //   img.src = event.target.result;
+    //     });
+    //     reader.readAsDataURL(file);
+    //   }
 
 
     postImage = (image, comment, author, eventId) => {
-        const formData = new FormData();
-        formData.append('eventId', eventId)
-        formData.append("text", comment );
-        formData.append("author",  author || 'Random Name'); 
-        formData.append("uploaded_file", image, "noteImage");
+        var data = {
+            eventId,
+            text: comment,
+            author,
+            uploaded_file: image
+        };
+       return fileUploadApiCall(data, BASE_URL_API + '/post')
+        // const formData = new FormData();
+        // formData.append('eventId', eventId)
+        // formData.append("text", comment );
+        // formData.append("author",  author || 'Random Name'); 
+        // formData.append("uploaded_file", image, "noteImage");
   
-        return fetch(BASE_URL_API + '/post',{
-          method: 'POST',
-          body: formData
-        }).then( s => console.log(s))
-        .catch(e => console.log(e))
+        // return fetch(BASE_URL_API + '/post',{
+        //   method: 'POST',
+        //   body: formData
+        // }).then( s => console.log(s))
+        // .catch(e => console.log(e))
     }
 
 
@@ -90,7 +99,10 @@ class ChatComponent extends React.Component {
     render(){
         return(
             <div className='chatComponent' style = {style}>
-                <input type="file" accept="image/*" 
+                <ImageUpload imageHandler = {
+                    (file) => this.postImage(file,'', 'Random Name', this.props.id )
+                }/>
+                {/* <input type="file" accept="image/*" 
                 ref = {this.fileInput}
                 onChange = {this.fileChange}
                 // onClick = {}
@@ -103,7 +115,7 @@ class ChatComponent extends React.Component {
                         <Button onClick={this.uploadImage}><Icon name = "attach"></Icon></Button>
                       }
                       actionPosition='left'
-                />
+                /> */}
                 <Button disabled={this.props.disabled} style ={{ marginLeft:'auto', width:'28%'}} onClick = { () => this.submitChat() }><Icon name ="send"></Icon>Send</Button>
             </div>
         )

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Profiler } from 'react';
 import './App.css';
 import UserProvider from './UserProvider';
 import Login from './container/Login';
@@ -15,11 +15,13 @@ import {
   Route
 } from "react-router-dom";
 import Home from './container/Home';
+import CreateProfile from './container/CreateProfile';
 import LogoutPage from './container/LogoutPage';
 import UserPage from './container/UserPage';
 import HostEventPage from './container/host/HostEventPage';
 import HostLiveEventPage from './container/host/HostLiveEventPage';
 import EditHostEventPage from './container/host/EditHostEventPage';
+import { Container } from 'semantic-ui-react';
 
 class App extends React.Component {
 
@@ -39,29 +41,34 @@ class App extends React.Component {
 
     application = () => {
         return (
+          <Container>
           <Router>
-            <Navbar/>
+            {/* <Navbar/> */}
             {/* <div className="mainApp"> */}
               <Switch>
                 <Route exact path="/" 
                   render = {(props) => <Home {...props} />} />
                 <Route path="/home" 
                   render = {(props) => <Home {...props} />} />      
+                <Route path = "/profile/:id/live"
+                  render = {(props) => <LiveEventPage {...props}/>} /> 
+                <Route path = '/profile/:id'
+                  render = {(props) => <EventPage {...props}/>} />
+                <Route path = "/profile" 
+                  render = {(props) => <CreateProfile {...props}/>} />
+
                 <Route path="/login"
                   render = {(props) => <Login {...props} authenticated = {this.state.authenticated} />}/>
                 <Route path="/cb" render = { props => <Success {...props}/> }/>
-  {/* TODO: Make the host endpoint only accessible to the creator of the event  */}
-                <Route path = "/event/host/:id/edit"
+
+                {/* <Route path = "/profile/host/:id/edit"
                   render = {(props) => <EditHostEventPage {...props}/>} />   
-                <Route path = "/event/host/:id/live"
-                  render = {(props) => <HostLiveEventPage {...props}/>} /> 
-                <Route path = "/event/host/:id"
+                  <Route path = "/profile/host/:id"
                   render = {(props) => <HostEventPage {...props}/>} />    
-                              
-                <Route path = "/event/:id/live"
-                  render = {(props) => <LiveEventPage {...props}/>} />   
-                <Route path = "/event/:id"
-                  render = {(props) => <EventPage {...props}/>} />
+                  
+                  <Route path = "/profile/:id/live"
+                render = {(props) => <LiveEventPage {...props}/>} />    */}
+                  
                 <Route path = "/logout"
                   render = {(props) =><LogoutPage/>} />
                 <Route path = "/user"
@@ -69,6 +76,7 @@ class App extends React.Component {
               </Switch>
             {/* </div> */}
           </Router>
+        </Container>
       );
     }
 

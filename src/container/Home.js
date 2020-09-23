@@ -3,6 +3,7 @@ import {Container} from 'semantic-ui-react'
 import EventGrid from './../component/EventGrid';
 import {db} from '../firebase';
 import AppHeader from '../component/AppHeader';
+import AddProfileButton from '../component/AddProfileButton';
 class Home extends React.Component {
 
     fetchPublicEvents = async () => {
@@ -22,7 +23,8 @@ class Home extends React.Component {
         return(
             <Container fluid>
                 <AppHeader/>
-                <EventGrid fetchEventResult={this.fetchPublicEvents} onCardClick = {this.onCardClick}/>
+                {/* <EventGrid fetchEventResult={this.fetchPublicEvents} onCardClick = {this.onCardClick}/> */}
+                <AddProfileButton/>
             </Container>
         );
     }
